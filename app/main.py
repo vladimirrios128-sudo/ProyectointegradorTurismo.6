@@ -2,9 +2,9 @@
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.endpoints.routes import router as routes_router
 from app.api.v1.endpoints.auth import router as auth_router
+from app.api.v1.endpoints.places import router as places_router
 from app.db.session import engine, Base
 
-# Crear tablas en la base de datos si no existen
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -23,6 +23,7 @@ app.add_middleware(
 
 app.include_router(routes_router, prefix="/api/v1/routes", tags=["Motor de Rutas"])
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Autenticacion y Usuarios"])
+app.include_router(places_router, prefix="/api/v1/places", tags=["Puntos Turisticos"])
 
 @app.get("/", tags=["Health Check"])
 def root():
