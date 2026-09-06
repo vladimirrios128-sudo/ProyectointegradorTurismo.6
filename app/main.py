@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.endpoints.routes import router as routes_router
+from app.api.v1.endpoints.auth import router as auth_router
 
 app = FastAPI(
     title="Turismo Inteligente API",
@@ -17,6 +18,7 @@ app.add_middleware(
 )
 
 app.include_router(routes_router, prefix="/api/v1/routes", tags=["Motor de Rutas"])
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["Autenticacion y Usuarios"])
 
 @app.get("/", tags=["Health Check"])
 def root():
