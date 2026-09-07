@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.schemas.places import PlaceCreate, PlaceResponse
 from app.db.session import get_db
-from app.db.models import PlaceModel
+from app.db.models import PlaceModel, UserModel
+from app.core.deps import get_current_user
 
 router = APIRouter()
 
@@ -11,8 +12,12 @@ router = APIRouter()
 def get_places(db: Session = Depends(get_db)):
     return db.query(PlaceModel).all()
 
-@router.post("/", response_model=PlaceResponse, status_code=status.HTTP_201_CREATED, summary="Registrar nuevo punto turistico")
-def create_place(place_in: PlaceCreate, db: Session = Depends(get_db)):
+@router.post("/", response_model=PlaceResponse, status_code=status.HTTP_201_CREATED, summary="Registrar nuevo punto turistico (Protegido)")
+def create_place(
+    place_in: PlaceCreate,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
     db_place = db.query(PlaceModel).filter(PlaceModel.id == place_in.id).first()
     if db_place:
         raise HTTPException(
