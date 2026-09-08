@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turismo Inteligente - Rutas & Filtros Rápido</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    
+    .custom-pin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      border: 2px solid white;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+
+  <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 px-6 py-3.5 flex justify-between items-center shadow-2xl">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-300 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-orange-500/20">
+        <i class="fa-solid fa-route"></i>
+      </div>
+      <div>
+        <h1 class="text-xl font-extrabold text-orange-300 tracking-wide">Turismo Inteligente</h1>
+        <p class="text-xs text-slate-400 font-medium">Guía de Viaje & Filtros Rápidos</p>
+      </div>
+    </div>
+    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistema En Línea
+    </span>
+  </header>
+
+  <main class="container mx-auto p-4 max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 my-2">
+    
+    <!-- Panel Izquierdo -->
+    <section class="lg:col-span-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl space-y-6 flex flex-col justify-between">
+      
+      <!-- Login -->
+      <div id="login-section" class="space-y-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Acceso a la Plataforma</h2>
+          <p class="text-xs text-slate-400">Ingresa tus credenciales para comenzar.</p>
+        </div>
+        <form id="login-form" class="space-y-3 pt-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Correo Electrónico</label>
+            <div class="relative">
+              <i class="fa-solid fa-envelope absolute left-3 top-3.5 text-slate-500 text-xs"></i>
+              <input type="email" id="email" value="vladimir@example.com" required class="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 text-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 transition">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Contraseña</label>
+            <div class="relative">
+              <i class="fa-solid fa-lock absolute left-3 top-3.5 text-slate-500 text-xs"></i>
+              <input type="password" id="password" value="Password123!" required class="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-800 text-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 transition">
+            </div>
+          </div>
+          <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition shadow-lg shadow-orange-500/20 mt-2">
+            Iniciar Sesión <i class="fa-solid fa-arrow-right ml-1"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- Planificador Interactivo -->
+      <div id="route-section" class="hidden space-y-4">
+        <div class="border-b border-slate-800 pb-2 flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-bold text-slate-100">Planificador de Viaje</h2>
+            <p class="text-xs text-slate-400">Filtra categorías y selecciona tu ruta.</p>
+          </div>
+          <!-- Botón GPS -->
+          <button id="gps-btn" title="Usar mi ubicación actual" class="p-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-xl text-xs transition flex items-center gap-1 font-bold border border-slate-700">
+            <i class="fa-solid fa-crosshairs"></i> GPS
+          </button>
+        </div>
+
+        <!-- Botones de Filtro Rápido por Categoría -->
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">Categorías de Interés</label>
+          <div class="flex gap-1.5 overflow-x-auto pb-1" id="category-filters">
+            <button data-cat="all" class="cat-btn px-2.5 py-1 bg-orange-500/20 border border-orange-500 text-orange-300 font-bold text-[11px] rounded-lg whitespace-nowrap">Todos</button>
+            <button data-cat="Mirador" class="cat-btn px-2.5 py-1 bg-slate-950 border border-slate-800 text-slate-400 text-[11px] rounded-lg whitespace-nowrap hover:bg-slate-800">🏔️ Miradores</button>
+            <button data-cat="Naturaleza" class="cat-btn px-2.5 py-1 bg-slate-950 border border-slate-800 text-slate-400 text-[11px] rounded-lg whitespace-nowrap hover:bg-slate-800">🌿 Naturaleza</button>
+            <button data-cat="Cercanías" class="cat-btn px-2.5 py-1 bg-slate-950 border border-slate-800 text-slate-400 text-[11px] rounded-lg whitespace-nowrap hover:bg-slate-800">🚘 Cercanías</button>
+            <button data-cat="Aventura" class="cat-btn px-2.5 py-1 bg-slate-950 border border-slate-800 text-slate-400 text-[11px] rounded-lg whitespace-nowrap hover:bg-slate-800">🧗 Aventura</button>
+          </div>
+        </div>
+        
+        <!-- Origen -->
+        <div class="relative">
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Punto de Origen</label>
+          <div class="relative cursor-pointer" id="origin-trigger">
+            <i class="fa-solid fa-location-dot absolute left-3 top-3.5 text-emerald-400 text-xs"></i>
+            <input type="text" id="origin-display" readonly placeholder="Toca para seleccionar origen..." class="w-full pl-9 pr-8 py-2.5 bg-slate-950 border border-slate-800 text-slate-200 rounded-xl text-sm font-medium cursor-pointer focus:border-orange-500 transition">
+            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-slate-500 text-xs"></i>
+          </div>
+          <div id="origin-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-950 border border-slate-800 rounded-xl shadow-2xl max-h-52 overflow-y-auto z-50"></div>
+        </div>
+
+        <!-- Destino -->
+        <div class="relative">
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Punto de Destino</label>
+          <div class="relative cursor-pointer" id="dest-trigger">
+            <i class="fa-solid fa-flag-checkered absolute left-3 top-3.5 text-rose-400 text-xs"></i>
+            <input type="text" id="dest-display" readonly placeholder="Toca para seleccionar destino..." class="w-full pl-9 pr-8 py-2.5 bg-slate-950 border border-slate-800 text-slate-200 rounded-xl text-sm font-medium cursor-pointer focus:border-orange-500 transition">
+            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-slate-500 text-xs"></i>
+          </div>
+          <div id="dest-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-950 border border-slate-800 rounded-xl shadow-2xl max-h-52 overflow-y-auto z-50"></div>
+        </div>
+
+        <!-- Transporte -->
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Transporte</label>
+          <div class="grid grid-cols-3 gap-2" id="transport-options">
+            <button type="button" data-mode="walk" class="mode-btn flex flex-col items-center justify-center p-2 border rounded-xl border-orange-500/50 bg-orange-500/10 text-orange-300 font-bold text-xs transition">
+              <i class="fa-solid fa-person-walking text-sm mb-1"></i> A Pie
+            </button>
+            <button type="button" data-mode="bike" class="mode-btn flex flex-col items-center justify-center p-2 border rounded-xl border-slate-800 text-slate-400 text-xs hover:bg-slate-800 transition">
+              <i class="fa-solid fa-bicycle text-sm mb-1"></i> Bici
+            </button>
+            <button type="button" data-mode="car" class="mode-btn flex flex-col items-center justify-center p-2 border rounded-xl border-slate-800 text-slate-400 text-xs hover:bg-slate-800 transition">
+              <i class="fa-solid fa-car text-sm mb-1"></i> Auto
+            </button>
+          </div>
+        </div>
+
+        <button id="calc-btn" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-calculator"></i> Calcular Trayecto
+        </button>
+        
+        <!-- Resultado con Clima y Tips de Viaje -->
+        <div id="route-result" class="space-y-3 hidden pt-1">
+          <div class="relative h-28 rounded-xl overflow-hidden border border-slate-800 shadow-md">
+            <img id="dest-img" src="" alt="Destino" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent flex items-end justify-between p-2.5">
+              <span id="dest-img-title" class="text-xs font-bold text-white drop-shadow"></span>
+              <span id="weather-badge" class="bg-slate-900/80 backdrop-blur text-amber-300 text-[10px] font-extrabold px-2 py-1 rounded-lg border border-slate-700/50 flex items-center gap-1"></span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Rutas Disponibles</label>
+            <div id="routes-list" class="space-y-2"></div>
+          </div>
+
+          <div id="travel-tips" class="p-3 bg-slate-950/80 border border-slate-800 rounded-xl text-xs space-y-1"></div>
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800/60 text-[11px] text-slate-500 text-center">
+        Turismo Inteligente • Bogotá & Cundinamarca
+      </div>
+    </section>
+
+    <!-- Mapa -->
+    <section class="lg:col-span-8 bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-2xl h-[600px] relative overflow-hidden flex flex-col">
+      <div id="map" class="w-full h-full rounded-xl z-10"></div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
