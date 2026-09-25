@@ -25,13 +25,13 @@
 
         <!-- Pestañas para cambiar el tipo de acceso -->
         <div class="flex border-b border-slate-800 mb-6 text-sm font-medium text-center text-slate-400">
-            <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold">
+            <button type="button" id="tab-login" onclick="switchAuthTab('login')" class="flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold cursor-pointer">
                 Iniciar Sesion
             </button>
-            <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white">
+            <button type="button" id="tab-register" onclick="switchAuthTab('register')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white cursor-pointer">
                 Crear Usuario
             </button>
-            <button id="tab-admin" onclick="switchAuthTab('admin')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white">
+            <button type="button" id="tab-admin" onclick="switchAuthTab('admin')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white cursor-pointer">
                 Administrador
             </button>
         </div>
@@ -46,7 +46,7 @@
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contrasena</label>
                 <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
             </div>
-            <button type="submit" id="btn-login-submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm">
+            <button type="submit" id="btn-login-submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm cursor-pointer">
                 Ingresar a la Plataforma &rarr;
             </button>
         </form>
@@ -65,7 +65,7 @@
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contrasena</label>
                 <input type="password" id="reg-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
             </div>
-            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm">
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm cursor-pointer">
                 Crear Cuenta
             </button>
         </form>
@@ -77,13 +77,67 @@
         </div>
 
         <!-- Opcion Entrar como Invitado -->
-        <button onclick="loginAsGuest()" class="w-full bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
+        <button type="button" onclick="loginAsGuest()" class="w-full bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2 cursor-pointer">
             <i class="fa-solid fa-user-secret"></i> Ingresar como Invitado
         </button>
 
     </div>
 
-    <!-- Script principal -->
-    <script src="app.js"></script>
+    <!-- Script de Logica -->
+    <script>
+        let currentRole = 'user';
+
+        function switchAuthTab(tab) {
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+            
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const tabAdmin = document.getElementById('tab-admin');
+            const btnSubmit = document.getElementById('btn-login-submit');
+
+            // Resetear estilos
+            [tabLogin, tabRegister, tabAdmin].forEach(t => {
+                t.className = "flex-1 pb-3 border-b-2 border-transparent text-slate-400 hover:text-white cursor-pointer";
+            });
+
+            if (tab === 'login') {
+                currentRole = 'user';
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+                tabLogin.className = "flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold cursor-pointer";
+                btnSubmit.innerText = "Ingresar a la Plataforma →";
+            } else if (tab === 'register') {
+                formLogin.classList.add('hidden');
+                formRegister.classList.remove('hidden');
+                tabRegister.className = "flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold cursor-pointer";
+            } else if (tab === 'admin') {
+                currentRole = 'admin';
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+                tabAdmin.className = "flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold cursor-pointer";
+                btnSubmit.innerText = "Ingresar como Administrador →";
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            alert(`Iniciando sesión como ${currentRole.toUpperCase()}: ${email}`);
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            alert(`¡Usuario ${name} registrado con éxito!`);
+            switchAuthTab('login');
+        }
+
+        function loginAsGuest() {
+            alert("Has ingresado como Invitado.");
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
