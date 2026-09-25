@@ -123,6 +123,14 @@
             <p id="route-transport-info" class="text-[11px] text-slate-400 mt-2 border-t border-slate-800 pt-1.5"></p>
         </div>
 
+        <!-- TARJETA DE DATO CURIOSO DEL DESTINO -->
+        <div id="fun-fact-card" class="hidden mb-4 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs">
+            <p class="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-lightbulb text-amber-400"></i> ¿Sabías que...?
+            </p>
+            <p id="fun-fact-text" class="text-slate-300 text-[11px] leading-relaxed"></p>
+        </div>
+
         <!-- SECCIÓN DE RESEÑAS Y CALIFICACIONES -->
         <div id="reviews-section" class="hidden mb-4 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs">
             <h4 class="font-bold text-white mb-2 flex items-center gap-1.5 text-xs">
@@ -229,18 +237,118 @@
         let favoritesList = JSON.parse(localStorage.getItem('fav_places') || '[]');
         let currentOrigin = { lat: 4.5981, lng: -74.0758, name: "Bogotá - Centro" };
 
-        // LISTA AMPLIADA CON FOTOGRAFÍAS REALES Y VERIFICADAS
+        // LISTA DE DESTINOS CON DATOS CURIOSOS
         const touristPlaces = [
-            { id: 1, name: "Rocas de Suesca", lat: 5.1053, lng: -73.8011, desc: "Escalada deportiva y farallones rocosos icónicos.", category: "Aventura", img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Rocas_de_Suesca.JPG", busInfo: "Flotas Alianza desde Portal Norte (~$12.000 COP)" },
-            { id: 2, name: "Laguna de Tota", lat: 5.5458, lng: -72.9213, desc: "El lago más grande de Colombia con Playa Blanca a 3.015 msnm.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Laguna_de_tota-_Boyac%C3%A1_Colombia.jpg", busInfo: "Buses desde Sogamoso / Aquitania (~$8.000 COP)" },
-            { id: 3, name: "Piedra Colgada de Susa", lat: 5.4521, lng: -73.8114, desc: "Imponente formación rocosa y mirador hacia la sabana.", category: "Aventura", img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Susa_Cundinamarca.jpg", busInfo: "Buses hacia Ubaté / Susa desde Portal Norte" },
-            { id: 4, name: "Laguna de la Cocha (Pasto)", lat: 1.1550, lng: -77.1500, desc: "Lago místico de origen glaciar con casitas de estilo suizo en El Encano.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Laguna_de_la_Cocha_-_Nari%C3%B1o.jpg", busInfo: "Colectivo desde Pasto hasta El Encano (~$6.000 COP)" },
-            { id: 5, name: "Catedral de Sal Zipaquirá", lat: 5.0189, lng: -74.0044, desc: "Santuario subterráneo esculpido en sal.", category: "Cultural", img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Zipaquira_Salt_Cathedral_2016.jpg", busInfo: "Buses intermunicipales desde Portal Norte (~$8.000 COP)" },
-            { id: 6, name: "Laguna de Guatavita", lat: 4.9786, lng: -73.7744, desc: "Cuna de la Leyenda de El Dorado y senderismo ecológico.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/8/86/Laguna_Guatavita_1.JPG", busInfo: "Flotas Valle de Tenza / Guatavita (~$14.000 COP)" },
-            { id: 7, name: "Cerro de Monserrate", lat: 4.6058, lng: -74.0555, desc: "Mirador icónico de Bogotá y santuario.", category: "Histórico", img: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Monserrate_Bogota.jpg", busInfo: "TransMilenio Estación Las Aguas / Teleférico" },
-            { id: 8, name: "Mirador de La Calera", lat: 4.6738, lng: -73.9723, desc: "Vistas espectaculares de la sabana y gastronomía.", category: "Mirador", img: "https://upload.wikimedia.org/wikipedia/commons/2/27/La_Calera_Cundinamarca.jpg", busInfo: "Microbuses desde la Calle 72 con Carrera 13" },
-            { id: 9, name: "Ciudad Amurallada Cartagena", lat: 10.4236, lng: -75.5512, desc: "Centro histórico colonial rodeado de murallas.", category: "Histórico", img: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cartagena_de_Indias_-_Ciudad_Amurallada.jpg", busInfo: "Vía terrestre por la Troncal del Caribe / Avión" },
-            { id: 10, name: "Parque Nacional Tayrona", lat: 11.3000, lng: -74.0500, desc: "Playas vírgenes, selva tropical y biodiversidad.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/3/36/Playa_Cabo_San_Juan_-_Tayrona.jpg", busInfo: "Buses desde Santa Marta hacia El Zaino (~$15.000 COP)" }
+            { 
+                id: 1, 
+                name: "Rocas de Suesca", 
+                lat: 5.1053, 
+                lng: -73.8011, 
+                desc: "Escalada deportiva y farallones rocosos icónicos.", 
+                category: "Aventura", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Rocas_de_Suesca.JPG", 
+                busInfo: "Flotas Alianza desde Portal Norte (~$12.000 COP)",
+                funFact: "Es considerada la cuna de la escalada en roca en Colombia; sus farallones de arenisca tienen más de 300 rutas de escalada trazadas desde la década de 1930."
+            },
+            { 
+                id: 2, 
+                name: "Laguna de Tota", 
+                lat: 5.5458, 
+                lng: -72.9213, 
+                desc: "El lago más grande de Colombia con su famosa Playa Blanca a 3.015 msnm.", 
+                category: "Naturaleza", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Laguna_de_tota-_Boyac%C3%A1_Colombia.jpg", 
+                busInfo: "Buses desde Sogamoso / Aquitania (~$8.000 COP)",
+                funFact: "Alberga la playa de agua dulce a mayor altitud de América del Sur y la tercera más alta del mundo."
+            },
+            { 
+                id: 3, 
+                name: "Piedra Colgada de Susa", 
+                lat: 5.4521, 
+                lng: -73.8114, 
+                desc: "Imponente formación rocosa y mirador panorámico sobre el valle de Ubaté.", 
+                category: "Aventura", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Susa_Cundinamarca.jpg", 
+                busInfo: "Buses hacia Ubaté / Susa desde Portal Norte",
+                funFact: "Es una enorme roca de arenisca que sobresale en el abismo dando la ilusión óptica de estar flotando en el aire sobre el valle de Ubaté."
+            },
+            { 
+                id: 4, 
+                name: "Laguna de la Cocha (Pasto)", 
+                lat: 1.1550, 
+                lng: -77.1500, 
+                desc: "Embalse natural de origen glaciar en Nariño con su mística Isla La Corota.", 
+                category: "Naturaleza", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Laguna_de_la_Cocha_-_Nari%C3%B1o.jpg", 
+                busInfo: "Colectivo desde Pasto hasta El Encano (~$6.000 COP)",
+                funFact: "En su centro se encuentra la Isla La Corota, el Santuario de Flora y Fauna más pequeño de Colombia, considerado un centro energético por las comunidades indígenas ancestrales."
+            },
+            { 
+                id: 5, 
+                name: "Catedral de Sal Zipaquirá", 
+                lat: 5.0189, 
+                lng: -74.0044, 
+                desc: "Santuario subterráneo esculpido en las minas de sal de Cundinamarca.", 
+                category: "Cultural", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Zipaquira_Salt_Cathedral_2016.jpg", 
+                busInfo: "Buses intermunicipales desde Portal Norte (~$8.000 COP)",
+                funFact: "Está construida a 180 metros bajo tierra dentro de una mina de sal y es considerada la Primera Maravilla de Colombia."
+            },
+            { 
+                id: 6, 
+                name: "Laguna de Guatavita", 
+                lat: 4.9786, 
+                lng: -73.7744, 
+                desc: "Cuna sagrada de la Leyenda de El Dorado y senderismo ecológico.", 
+                category: "Naturaleza", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/8/86/Laguna_Guatavita_1.JPG", 
+                busInfo: "Flotas Valle de Tenza / Guatavita (~$14.000 COP)",
+                funFact: "Era el sitio sagrado donde el Zipa Muisca realizaba rituales cubierto en oro en polvo, origen de la famosa Leyenda de El Dorado."
+            },
+            { 
+                id: 7, 
+                name: "Cerro de Monserrate", 
+                lat: 4.6058, 
+                lng: -74.0555, 
+                desc: "Santuario y mirador panorámico principal sobre la sabana de Bogotá.", 
+                category: "Histórico", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Monserrate_Bogota.jpg", 
+                busInfo: "TransMilenio Estación Las Aguas / Teleférico",
+                funFact: "Se encuentra a 3.152 msnm y la estatua del Señor Caído que alberga es famosa por sus leyendas de milagros y por 'crecerle el cabello' según la creencia popular."
+            },
+            { 
+                id: 8, 
+                name: "Mirador de La Calera", 
+                lat: 4.6738, 
+                lng: -73.9723, 
+                desc: "Vistas nocturnas y diurnas de Bogotá acompañadas de oferta gastronómica.", 
+                category: "Mirador", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/2/27/La_Calera_Cundinamarca.jpg", 
+                busInfo: "Microbuses desde la Calle 72 con Carrera 13",
+                funFact: "Ofrece la mejor vista panorámica nocturna de Bogotá mientras se disfruta de la tradicional canelazo colombiano."
+            },
+            { 
+                id: 9, 
+                name: "Ciudad Amurallada Cartagena", 
+                lat: 10.4236, 
+                lng: -75.5512, 
+                desc: "Patrimonio histórico de la humanidad con arquitectura colonial fortificada.", 
+                category: "Histórico", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cartagena_de_Indias_-_Ciudad_Amurallada.jpg", 
+                busInfo: "Vía terrestre por la Troncal del Caribe / Avión",
+                funFact: "Sus murallas tardaron más de 200 años en construirse para proteger las riquezas de la corona española de los ataques de piratas británicos y franceses."
+            },
+            { 
+                id: 10, 
+                name: "Parque Nacional Tayrona", 
+                lat: 11.3000, 
+                lng: -74.0500, 
+                desc: "Encuentro caribeño entre la Sierra Nevada de Santa Marta y el mar.", 
+                category: "Naturaleza", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/3/36/Playa_Cabo_San_Juan_-_Tayrona.jpg", 
+                busInfo: "Buses desde Santa Marta hacia El Zaino (~$15.000 COP)",
+                funFact: "Es uno de los pocos lugares del planeta donde la montaña nevada más alta junto al mar (la Sierra Nevada de Santa Marta) se une directamente con las playas del Caribe."
+            }
         ];
 
         // MANEJO DE FAVORITOS
@@ -410,6 +518,16 @@
 
             fetchWeather(place.lat, place.lng);
             loadReviews(place.name);
+
+            // Mostrar Dato Curioso
+            const funFactCard = document.getElementById('fun-fact-card');
+            const funFactText = document.getElementById('fun-fact-text');
+            if (place.funFact) {
+                funFactText.innerText = place.funFact;
+                funFactCard.classList.remove('hidden');
+            } else {
+                funFactCard.classList.add('hidden');
+            }
 
             document.getElementById('route-dest-name').innerText = place.name;
             document.getElementById('route-distance').innerText = "Calculando...";

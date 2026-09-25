@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 from typing import List, Optional
 
-# Base de datos SQLite3
+# BASE DE DATOS SQLITE3
 SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -51,7 +51,7 @@ class Favorite(Base):
 
 Base.metadata.create_all(bind=engine)
 
-# --- SEGURIDAD Y JWT ---
+# --- SEGURIDAD Y TOKEN JWT ---
 SECRET_KEY = "clave_secreta_turismo_inteligente_usb"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
@@ -90,7 +90,7 @@ class ReviewCreate(BaseModel):
 class FavoriteCreate(BaseModel):
     place_name: str
 
-# FUNCIONES AUXILIARES DE SEGURIDAD
+# FUNCIONES DE SEGURIDAD
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -117,7 +117,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
     return user
 
-# --- ENDPOINTS DE AUTENTICACIÓN ---
+# --- ENDPOINTS ---
 
 @app.post("/auth/register", status_code=201)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
@@ -150,8 +150,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         "full_name": user.full_name
     }
 
-# --- ENDPOINTS DE RESEÑAS Y CALIFICACIONES ---
-
 @app.post("/reviews")
 def create_review(review: ReviewCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     new_review = Review(
@@ -173,8 +171,6 @@ def get_reviews(place_name: str, db: Session = Depends(get_db)):
         "comment": r.comment,
         "date": r.created_at.strftime("%Y-%m-%d")
     } for r in reviews]
-
-# --- ENDPOINTS DE FAVORITOS ---
 
 @app.post("/favorites")
 def toggle_favorite(fav: FavoriteCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
