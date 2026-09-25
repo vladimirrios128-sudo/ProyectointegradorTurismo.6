@@ -8,95 +8,364 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet.js CSS y JS para mapas -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { height: 100vh; width: 100vw; }
+    </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center font-sans">
+<body class="bg-slate-950 text-white min-h-screen font-sans overflow-hidden">
 
-    <!-- Modal de Autenticacion -->
-    <div id="auth-modal" class="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full shadow-2xl relative my-8">
+    <!-- Navbar superior -->
+    <nav id="app-nav" class="hidden fixed top-0 left-0 right-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-amber-500/10 text-amber-500 rounded-lg">
+                <i class="fa-solid fa-map-location-dot text-xl"></i>
+            </div>
+            <h1 class="text-lg font-bold text-white">Turismo Inteligente</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="user-badge" class="bg-slate-800 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-700">
+                <i class="fa-solid fa-user-circle mr-1"></i> Modo Invitado
+            </span>
+            <button onclick="logout()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold px-3 py-1.5 rounded-lg border border-red-500/20 transition-all cursor-pointer">
+                <i class="fa-solid fa-right-from-bracket mr-1"></i> Salir
+            </button>
+        </div>
+    </nav>
+
+    <!-- Panel Lateral de Filtros, Rutas y Destinos -->
+    <div id="side-panel" class="hidden fixed top-20 left-6 z-30 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-5 w-84 shadow-2xl max-h-[calc(100vh-100px)] overflow-y-auto">
         
-        <!-- Header -->
-        <div class="text-center mb-6">
-            <div class="inline-flex p-3 bg-amber-500/10 text-amber-500 rounded-xl mb-3">
-                <i class="fa-solid fa-map-location-dot text-3xl"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-white mb-1">Turismo Inteligente</h2>
-            <p class="text-slate-400 text-sm">Selecciona tu metodo de acceso</p>
+        <!-- Ubicación de Origen -->
+        <div class="mb-4">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-location-crosshairs text-amber-500"></i> Tu Ubicación (Origen)
+            </label>
+            <select id="origin-select" onchange="updateOrigin()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-amber-500">
+                <option value="bogota_centro">Bogotá - Centro (Plaza de Bolívar)</option>
+                <option value="bogota_norte">Bogotá - Portal Norte</option>
+                <option value="chia">Chía, Cundinamarca</option>
+                <option value="soacha">Soacha, Cundinamarca</option>
+            </select>
         </div>
 
-        <!-- Pestañas para cambiar el tipo de acceso -->
-        <div class="flex border-b border-slate-800 mb-6 text-sm font-medium text-center text-slate-400">
-            <button type="button" id="tab-login" onclick="switchAuthTab('login')" class="flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold cursor-pointer">
-                Iniciar Sesion
-            </button>
-            <button type="button" id="tab-register" onclick="switchAuthTab('register')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white cursor-pointer">
-                Crear Usuario
-            </button>
-            <button type="button" id="tab-admin" onclick="switchAuthTab('admin')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white cursor-pointer">
-                Administrador
-            </button>
+        <!-- Búsqueda y Filtro por Categorías -->
+        <div class="mb-4">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-filter text-amber-500"></i> Filtrar Destinos
+            </label>
+            <input type="text" id="search-input" onkeyup="filterPlaces()" placeholder="Buscar destino (Ej: Suesca, Sal...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs mb-2 focus:outline-none focus:border-amber-500">
+            
+            <div class="flex flex-wrap gap-1">
+                <button type="button" onclick="filterCategory('All')" class="cat-btn px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px] cursor-pointer">Todos</button>
+                <button type="button" onclick="filterCategory('Aventura')" class="cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer">Aventura</button>
+                <button type="button" onclick="filterCategory('Cultural')" class="cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer">Cultural</button>
+                <button type="button" onclick="filterCategory('Naturaleza')" class="cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer">Naturaleza</button>
+                <button type="button" onclick="filterCategory('Histórico')" class="cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer">Histórico</button>
+                <button type="button" onclick="filterCategory('Mirador')" class="cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer">Mirador</button>
+            </div>
         </div>
 
-        <!-- Formulario de Iniciar Sesion / Administrador -->
-        <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electronico</label>
-                <input type="email" id="login-email" required placeholder="tu@correo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+        <!-- Selector de Medio de Transporte -->
+        <div class="mb-4">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Medio de Transporte</label>
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="setTransport('car')" id="btn-car" class="py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs flex flex-col items-center gap-1 cursor-pointer transition-all">
+                    <i class="fa-solid fa-car"></i> Vehículo
+                </button>
+                <button type="button" onclick="setTransport('bus')" id="btn-bus" class="py-2 bg-slate-800 text-slate-400 font-semibold rounded-xl text-xs flex flex-col items-center gap-1 hover:text-white cursor-pointer transition-all">
+                    <i class="fa-solid fa-bus"></i> Autobús
+                </button>
+                <button type="button" onclick="setTransport('walk')" id="btn-walk" class="py-2 bg-slate-800 text-slate-400 font-semibold rounded-xl text-xs flex flex-col items-center gap-1 hover:text-white cursor-pointer transition-all">
+                    <i class="fa-solid fa-person-walking"></i> Caminata
+                </button>
             </div>
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contrasena</label>
-                <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
-            </div>
-            <button type="submit" id="btn-login-submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm cursor-pointer">
-                Ingresar a la Plataforma &rarr;
-            </button>
-        </form>
-
-        <!-- Formulario de Registro (Crear Usuario) -->
-        <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Nombre Completo</label>
-                <input type="text" id="reg-name" required placeholder="Juan Perez" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electronico</label>
-                <input type="email" id="reg-email" required placeholder="tu@correo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contrasena</label>
-                <input type="password" id="reg-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
-            </div>
-            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm cursor-pointer">
-                Crear Cuenta
-            </button>
-        </form>
-
-        <!-- Separador -->
-        <div class="relative my-6">
-            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
-            <div class="relative flex justify-center text-xs uppercase"><span class="bg-slate-900 px-2 text-slate-500">O tambien</span></div>
         </div>
 
-        <!-- Opcion Entrar como Invitado -->
-        <button type="button" onclick="loginAsGuest()" class="w-full bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2 cursor-pointer">
-            <i class="fa-solid fa-user-secret"></i> Ingresar como Invitado
-        </button>
+        <!-- Tarjeta de Detalles de Ruta Seleccionada -->
+        <div id="route-info" class="hidden mb-4 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs">
+            <p id="route-dest-name" class="font-bold text-amber-400 text-sm mb-1"></p>
+            <div class="flex justify-between text-slate-300 my-1">
+                <span>Distancia estimada:</span>
+                <span id="route-distance" class="font-semibold text-white"></span>
+            </div>
+            <div class="flex justify-between text-slate-300 my-1">
+                <span>Tiempo de llegada:</span>
+                <span id="route-time" class="font-semibold text-amber-400"></span>
+            </div>
+            <p id="route-transport-info" class="text-[11px] text-slate-400 mt-2 border-t border-slate-800 pt-1.5"></p>
+        </div>
 
+        <!-- Lista Dinámica de Destinos -->
+        <div id="places-list" class="space-y-2"></div>
     </div>
 
-    <!-- Script de Logica -->
+    <!-- Contenedor del Mapa -->
+    <div id="map" class="z-10"></div>
+
+    <!-- Modal de Autenticación -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-950 flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
+            
+            <div class="text-center mb-6">
+                <div class="inline-flex p-3 bg-amber-500/10 text-amber-500 rounded-xl mb-3">
+                    <i class="fa-solid fa-map-location-dot text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-1">Turismo Inteligente</h2>
+                <p class="text-slate-400 text-sm">Selecciona tu método de acceso</p>
+            </div>
+
+            <div class="flex border-b border-slate-800 mb-6 text-sm font-medium text-center text-slate-400">
+                <button type="button" id="tab-login" onclick="switchAuthTab('login')" class="flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold cursor-pointer">
+                    Iniciar Sesión
+                </button>
+                <button type="button" id="tab-register" onclick="switchAuthTab('register')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white cursor-pointer">
+                    Crear Usuario
+                </button>
+                <button type="button" id="tab-admin" onclick="switchAuthTab('admin')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white cursor-pointer">
+                    Administrador
+                </button>
+            </div>
+
+            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="tu@correo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+                <button type="submit" id="btn-login-submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm cursor-pointer">
+                    Ingresar a la Plataforma &rarr;
+                </button>
+            </form>
+
+            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Nombre Completo</label>
+                    <input type="text" id="reg-name" required placeholder="Juan Pérez" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electrónico</label>
+                    <input type="email" id="reg-email" required placeholder="tu@correo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contraseña</label>
+                    <input type="password" id="reg-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm cursor-pointer">
+                    Crear Cuenta
+                </button>
+            </form>
+
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+                <div class="relative flex justify-center text-xs uppercase"><span class="bg-slate-900 px-2 text-slate-500">O también</span></div>
+            </div>
+
+            <button type="button" onclick="loginAsGuest()" class="w-full bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-user-secret"></i> Ingresar como Invitado
+            </button>
+
+        </div>
+    </div>
+
+    <!-- Lógica JavaScript -->
     <script>
+        let map = null;
         let currentRole = 'user';
+        let currentTransport = 'car';
+        let currentCategory = 'All';
+        let currentPolyline = null;
+        let selectedPlace = null;
+        let originMarker = null;
+
+        // Lista de orígenes de usuario
+        const origins = {
+            bogota_centro: { lat: 4.5981, lng: -74.0758, name: "Bogotá - Centro" },
+            bogota_norte: { lat: 4.7550, lng: -74.0460, name: "Bogotá - Portal Norte" },
+            chia: { lat: 4.8622, lng: -74.0538, name: "Chía, Cundinamarca" },
+            soacha: { lat: 4.5794, lng: -74.2172, name: "Soacha, Cundinamarca" }
+        };
+
+        let currentOrigin = origins.bogota_centro;
+
+        // Lista de destinos
+        const touristPlaces = [
+            { id: 1, name: "Rocas de Suesca", lat: 5.1053, lng: -73.8011, desc: "Escalada deportiva y parque natural.", category: "Aventura", busInfo: "Flotas Alianza desde Portal Norte (~$12.000 COP)" },
+            { id: 2, name: "Catedral de Sal Zipaquirá", lat: 5.0189, lng: -74.0044, desc: "Santuario subterráneo en mina de sal.", category: "Cultural", busInfo: "Buses intermunicipales desde Portal Norte (~$8.000 COP)" },
+            { id: 3, name: "Laguna de Guatavita", lat: 4.9786, lng: -73.7744, desc: "Leyenda de El Dorado y senderismo.", category: "Naturaleza", busInfo: "Flotas Valle de Tenza / Guatavita (~$14.000 COP)" },
+            { id: 4, name: "Cerro de Monserrate", lat: 4.6058, lng: -74.0555, desc: "Mirador panorámico y santuario.", category: "Histórico", busInfo: "TransMilenio Estación Las Aguas / Teleférico" },
+            { id: 5, name: "Mirador de La Calera", lat: 4.6738, lng: -73.9723, desc: "Vistas panorámicas y gastronomía.", category: "Mirador", busInfo: "Microbuses desde la Calle 72 con Carrera 13" }
+        ];
+
+        function updateOrigin() {
+            const val = document.getElementById('origin-select').value;
+            currentOrigin = origins[val];
+
+            if (originMarker) {
+                originMarker.setLatLng([currentOrigin.lat, currentOrigin.lng]);
+                originMarker.getPopup().setContent(`<b>Tu Ubicación Actual</b><br>${currentOrigin.name}`);
+            }
+
+            if (selectedPlace) {
+                calculateRoute(selectedPlace);
+            }
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            const buttons = document.querySelectorAll('.cat-btn');
+            buttons.forEach(b => {
+                if (b.innerText === cat || (cat === 'All' && b.innerText === 'Todos')) {
+                    b.className = "cat-btn px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px] cursor-pointer";
+                } else {
+                    b.className = "cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer";
+                }
+            });
+            renderPlacesList();
+        }
+
+        function filterPlaces() {
+            renderPlacesList();
+        }
+
+        function renderPlacesList() {
+            const listContainer = document.getElementById('places-list');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            listContainer.innerHTML = '';
+
+            const filtered = touristPlaces.filter(p => {
+                const matchesCat = currentCategory === 'All' || p.category === currentCategory;
+                const matchesSearch = p.name.toLowerCase().includes(searchVal) || p.desc.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No se encontraron destinos.</p>`;
+                return;
+            }
+
+            filtered.forEach(place => {
+                const item = document.createElement('div');
+                item.className = "p-3 bg-slate-950/80 hover:bg-slate-800/80 border border-slate-800/60 rounded-xl cursor-pointer transition-all";
+                item.onclick = () => calculateRoute(place);
+                item.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-bold text-xs text-white">${place.name}</h3>
+                        <span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-md font-semibold">${place.category}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400">${place.desc}</p>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return Math.round(R * c);
+        }
+
+        function calculateRoute(place) {
+            selectedPlace = place;
+            const routeInfo = document.getElementById('route-info');
+            routeInfo.classList.remove('hidden');
+
+            const dist = calculateDistanceKm(currentOrigin.lat, currentOrigin.lng, place.lat, place.lng);
+
+            document.getElementById('route-dest-name').innerText = place.name;
+            document.getElementById('route-distance').innerText = `${dist} km`;
+
+            let speed = 50;
+            let transportText = "Vía asfaltada principal.";
+
+            if (currentTransport === 'car') {
+                speed = 50;
+                transportText = "Vía principal en vehículo particular.";
+            } else if (currentTransport === 'bus') {
+                speed = 35;
+                transportText = place.busInfo;
+            } else if (currentTransport === 'walk') {
+                speed = 4.5;
+                transportText = "Ruta peatonizada / senderismo.";
+            }
+
+            const hours = dist / speed;
+            let timeString = "";
+            if (hours < 1) {
+                timeString = `${Math.round(hours * 60)} min`;
+            } else {
+                const h = Math.floor(hours);
+                const m = Math.round((hours - h) * 60);
+                timeString = `${h}h ${m}m`;
+            }
+
+            document.getElementById('route-time').innerText = timeString;
+            document.getElementById('route-transport-info').innerHTML = `<i class="fa-solid fa-circle-info mr-1"></i> ${transportText}`;
+
+            if (currentPolyline) {
+                map.removeLayer(currentPolyline);
+            }
+
+            const latlngs = [
+                [currentOrigin.lat, currentOrigin.lng],
+                [place.lat, place.lng]
+            ];
+
+            currentPolyline = L.polyline(latlngs, {
+                color: '#f59e0b',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: currentTransport === 'walk' ? '6, 8' : null
+            }).addTo(map);
+
+            map.fitBounds(currentPolyline.getBounds(), { padding: [50, 50] });
+        }
+
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([4.8500, -73.9500], 10);
+
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(map);
+
+                originMarker = L.marker([currentOrigin.lat, currentOrigin.lng]).addTo(map)
+                    .bindPopup(`<b>Tu Ubicación Actual</b><br>${currentOrigin.name}`);
+
+                touristPlaces.forEach(place => {
+                    const marker = L.marker([place.lat, place.lng]).addTo(map);
+                    marker.bindPopup(`
+                        <div style="color: #0f172a; font-family: sans-serif;">
+                            <b style="font-size: 14px; color: #d97706;">${place.name}</b><br>
+                            <span style="font-size: 11px; background-color: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${place.category}</span><br>
+                            <p style="font-size: 12px; margin-top: 5px;">${place.desc}</p>
+                            <button onclick="calculateRoute(touristPlaces[${place.id - 1}])" style="background-color: #f59e0b; color: #020617; border: none; padding: 4px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">Trazar Ruta</button>
+                        </div>
+                    `);
+                });
+            }
+            setTimeout(() => { map.invalidateSize(); }, 300);
+        }
 
         function switchAuthTab(tab) {
             const formLogin = document.getElementById('form-login');
             const formRegister = document.getElementById('form-register');
-            
             const tabLogin = document.getElementById('tab-login');
             const tabRegister = document.getElementById('tab-register');
             const tabAdmin = document.getElementById('tab-admin');
             const btnSubmit = document.getElementById('btn-login-submit');
 
-            // Resetear estilos
             [tabLogin, tabRegister, tabAdmin].forEach(t => {
                 t.className = "flex-1 pb-3 border-b-2 border-transparent text-slate-400 hover:text-white cursor-pointer";
             });
@@ -120,23 +389,64 @@
             }
         }
 
+        function setTransport(type) {
+            currentTransport = type;
+            const btnCar = document.getElementById('btn-car');
+            const btnBus = document.getElementById('btn-bus');
+            const btnWalk = document.getElementById('btn-walk');
+
+            [btnCar, btnBus, btnWalk].forEach(b => {
+                b.className = "py-2 bg-slate-800 text-slate-400 font-semibold rounded-xl text-xs flex flex-col items-center gap-1 hover:text-white cursor-pointer transition-all";
+            });
+
+            if (type === 'car') btnCar.className = "py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs flex flex-col items-center gap-1 cursor-pointer transition-all";
+            if (type === 'bus') btnBus.className = "py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs flex flex-col items-center gap-1 cursor-pointer transition-all";
+            if (type === 'walk') btnWalk.className = "py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs flex flex-col items-center gap-1 cursor-pointer transition-all";
+
+            if (selectedPlace) {
+                calculateRoute(selectedPlace);
+            }
+        }
+
+        function launchApp(roleName, userEmail) {
+            document.getElementById('auth-modal').classList.add('hidden');
+            document.getElementById('app-nav').classList.remove('hidden');
+            document.getElementById('app-nav').classList.add('flex');
+            document.getElementById('side-panel').classList.remove('hidden');
+            
+            const badge = document.getElementById('user-badge');
+            badge.innerHTML = `<i class="fa-solid fa-user-circle mr-1"></i> ${roleName}: ${userEmail || ''}`;
+            
+            initMap();
+            renderPlacesList();
+        }
+
         function handleLogin(event) {
             event.preventDefault();
             const email = document.getElementById('login-email').value;
-            alert(`Iniciando sesión como ${currentRole.toUpperCase()}: ${email}`);
-            document.getElementById('auth-modal').classList.add('hidden');
+            const roleLabel = currentRole === 'admin' ? 'Administrador' : 'Usuario';
+            launchApp(roleLabel, email);
         }
 
         function handleRegister(event) {
             event.preventDefault();
             const name = document.getElementById('reg-name').value;
-            alert(`¡Usuario ${name} registrado con éxito!`);
+            alert(`¡Usuario ${name} registrado con éxito! Ahora puedes ingresar.`);
             switchAuthTab('login');
         }
 
         function loginAsGuest() {
-            alert("Has ingresado como Invitado.");
-            document.getElementById('auth-modal').classList.add('hidden');
+            launchApp('Modo Invitado', 'Invitado');
+        }
+
+        function logout() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+            document.getElementById('app-nav').classList.add('hidden');
+            document.getElementById('app-nav').classList.remove('flex');
+            document.getElementById('side-panel').classList.add('hidden');
+            if (currentPolyline) {
+                map.removeLayer(currentPolyline);
+            }
         }
     </script>
 </body>
