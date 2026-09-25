@@ -1,20 +1,32 @@
-<!-- Modal de Autenticación / Registro / Invitado -->
-<div id="auth-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turismo Inteligente</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center font-sans">
+
+    <!-- Modal de Autenticacion -->
+    <div id="auth-modal" class="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full shadow-2xl relative my-8">
         
-        <!-- Header con selector de modo -->
+        <!-- Header -->
         <div class="text-center mb-6">
             <div class="inline-flex p-3 bg-amber-500/10 text-amber-500 rounded-xl mb-3">
                 <i class="fa-solid fa-map-location-dot text-3xl"></i>
             </div>
             <h2 class="text-2xl font-bold text-white mb-1">Turismo Inteligente</h2>
-            <p class="text-slate-400 text-sm">Selecciona tu método de acceso</p>
+            <p class="text-slate-400 text-sm">Selecciona tu metodo de acceso</p>
         </div>
 
         <!-- Pestañas para cambiar el tipo de acceso -->
         <div class="flex border-b border-slate-800 mb-6 text-sm font-medium text-center text-slate-400">
             <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold">
-                Iniciar Sesión
+                Iniciar Sesion
             </button>
             <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white">
                 Crear Usuario
@@ -24,18 +36,18 @@
             </button>
         </div>
 
-        <!-- Formulario de Iniciar Sesión / Administrador -->
+        <!-- Formulario de Iniciar Sesion / Administrador -->
         <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electrónico</label>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electronico</label>
                 <input type="email" id="login-email" required placeholder="tu@correo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contraseña</label>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contrasena</label>
                 <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
             </div>
             <button type="submit" id="btn-login-submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm">
-                Ingresar a la Plataforma →
+                Ingresar a la Plataforma &rarr;
             </button>
         </form>
 
@@ -43,14 +55,14 @@
         <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Nombre Completo</label>
-                <input type="text" id="reg-name" required placeholder="Juan Pérez" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+                <input type="text" id="reg-name" required placeholder="Juan Perez" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electrónico</label>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electronico</label>
                 <input type="email" id="reg-email" required placeholder="tu@correo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contraseña</label>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contrasena</label>
                 <input type="password" id="reg-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
             </div>
             <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm">
@@ -61,13 +73,17 @@
         <!-- Separador -->
         <div class="relative my-6">
             <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
-            <div class="relative flex justify-center text-xs uppercase"><span class="bg-slate-900 px-2 text-slate-500">O también</span></div>
+            <div class="relative flex justify-center text-xs uppercase"><span class="bg-slate-900 px-2 text-slate-500">O tambien</span></div>
         </div>
 
-        <!-- Opción Entrar como Invitado -->
+        <!-- Opcion Entrar como Invitado -->
         <button onclick="loginAsGuest()" class="w-full bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
             <i class="fa-solid fa-user-secret"></i> Ingresar como Invitado
         </button>
 
     </div>
-</div>
+
+    <!-- Script principal -->
+    <script src="app.js"></script>
+</body>
+</html>
