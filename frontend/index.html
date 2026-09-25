@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turismo Inteligente - Geocodificación y Clima</title>
+    <title>Turismo Inteligente - Reseñas y Favoritos</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome para iconos -->
@@ -13,6 +13,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         #map { height: 100vh; width: 100vw; }
+        .star-rating i { cursor: pointer; transition: color 0.2s; }
+        .star-rating i:hover, .star-rating i.active { color: #f59e0b; }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen font-sans overflow-hidden">
@@ -35,10 +37,10 @@
         </div>
     </nav>
 
-    <!-- Panel Lateral de Filtros, Rutas, Clima y Geocodificación -->
+    <!-- Panel Lateral de Filtros, Rutas, Clima, Favoritos y Reseñas -->
     <div id="side-panel" class="hidden fixed top-20 left-6 z-30 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-5 w-84 shadow-2xl max-h-[calc(100vh-100px)] overflow-y-auto">
         
-        <!-- 1. GEOCODIFICACIÓN DE ORIGEN (Búsqueda Nominatim) -->
+        <!-- GEOCODIFICACIÓN DE ORIGEN (Búsqueda Nominatim) -->
         <div class="mb-4">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
                 <i class="fa-solid fa-location-crosshairs text-amber-500"></i> Tu Ubicación (Origen)
@@ -52,7 +54,7 @@
             <p id="origin-status" class="text-[10px] text-amber-400 mt-1">Origen actual: Bogotá - Centro</p>
         </div>
 
-        <!-- 2. BÚSQUEDA Y FILTRO POR CATEGORÍAS -->
+        <!-- BÚSQUEDA Y FILTRO POR CATEGORÍAS (INCLUYE FILTRO MIS FAVORITOS) -->
         <div class="mb-4">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
                 <i class="fa-solid fa-filter text-amber-500"></i> Filtrar Destinos
@@ -61,6 +63,7 @@
             
             <div class="flex flex-wrap gap-1">
                 <button type="button" onclick="filterCategory('All')" class="cat-btn px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px] cursor-pointer">Todos</button>
+                <button type="button" onclick="filterCategory('Favs')" class="cat-btn px-2.5 py-1 bg-slate-800 text-red-400 rounded-lg text-[11px] hover:text-white cursor-pointer"><i class="fa-solid fa-heart mr-1"></i>Favoritos</button>
                 <button type="button" onclick="filterCategory('Aventura')" class="cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer">Aventura</button>
                 <button type="button" onclick="filterCategory('Cultural')" class="cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer">Cultural</button>
                 <button type="button" onclick="filterCategory('Naturaleza')" class="cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer">Naturaleza</button>
@@ -85,7 +88,7 @@
             </div>
         </div>
 
-        <!-- 3. TARJETA DEL CLIMA EN TIEMPO REAL (Open-Meteo API) -->
+        <!-- TARJETA DEL CLIMA EN TIEMPO REAL (Open-Meteo API) -->
         <div id="weather-card" class="hidden mb-4 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs">
             <div class="flex justify-between items-center mb-1">
                 <p class="font-bold text-amber-400 flex items-center gap-1.5 text-xs">
@@ -118,6 +121,34 @@
                 <span id="route-time" class="font-semibold text-amber-400">Calculando...</span>
             </div>
             <p id="route-transport-info" class="text-[11px] text-slate-400 mt-2 border-t border-slate-800 pt-1.5"></p>
+        </div>
+
+        <!-- SECCIÓN DE RESEÑAS Y CALIFICACIONES (ESTRELLAS) -->
+        <div id="reviews-section" class="hidden mb-4 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs">
+            <h4 class="font-bold text-white mb-2 flex items-center gap-1.5 text-xs">
+                <i class="fa-solid fa-star text-amber-400"></i> Opiniones y Calificaciones
+            </h4>
+            
+            <!-- Contenedor de Reseñas Cargas -->
+            <div id="reviews-list" class="space-y-2 mb-3 max-h-32 overflow-y-auto">
+                <p class="text-[11px] text-slate-500 text-center py-2">Sin opiniones aún.</p>
+            </div>
+
+            <!-- Formulario para Nueva Reseña -->
+            <div class="border-t border-slate-800 pt-2">
+                <p class="text-[11px] font-semibold text-slate-300 mb-1">Califica tu experiencia:</p>
+                <div class="flex items-center gap-1 mb-2 text-slate-600 text-sm star-rating" id="star-selector">
+                    <i class="fa-solid fa-star" onclick="setRating(1)"></i>
+                    <i class="fa-solid fa-star" onclick="setRating(2)"></i>
+                    <i class="fa-solid fa-star" onclick="setRating(3)"></i>
+                    <i class="fa-solid fa-star" onclick="setRating(4)"></i>
+                    <i class="fa-solid fa-star" onclick="setRating(5)"></i>
+                </div>
+                <textarea id="review-comment" placeholder="Escribe tu opinión sobre el destino o la ruta..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-[11px] text-white focus:outline-none focus:border-amber-500 mb-2" rows="2"></textarea>
+                <button type="button" onclick="submitReview()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-1.5 rounded-lg text-xs transition-all cursor-pointer">
+                    Publicar Reseña
+                </button>
+            </div>
         </div>
 
         <!-- LISTA DINÁMICA DE DESTINOS -->
@@ -195,8 +226,11 @@
         </div>
     </div>
 
-    <!-- Lógica JavaScript Dinámica -->
+    <!-- Lógica JavaScript con Favoritos y Reseñas Integradas -->
     <script>
+        const API_URL = "http://localhost:5000";
+        let authToken = localStorage.getItem('jwt_token') || null;
+
         let map = null;
         let currentRole = 'user';
         let currentTransport = 'driving';
@@ -204,11 +238,13 @@
         let currentPolyline = null;
         let selectedPlace = null;
         let originMarker = null;
+        let selectedRating = 5;
 
-        // Origen inicial dinámico
+        // Estado local de favoritos
+        let favoritesList = JSON.parse(localStorage.getItem('fav_places') || '[]');
+
         let currentOrigin = { lat: 4.5981, lng: -74.0758, name: "Bogotá - Centro" };
 
-        // Destinos turísticos
         const touristPlaces = [
             { id: 1, name: "Rocas de Suesca", lat: 5.1053, lng: -73.8011, desc: "Escalada deportiva y parque natural.", category: "Aventura", busInfo: "Flotas Alianza desde Portal Norte (~$12.000 COP)" },
             { id: 2, name: "Catedral de Sal Zipaquirá", lat: 5.0189, lng: -74.0044, desc: "Santuario subterráneo en mina de sal.", category: "Cultural", busInfo: "Buses intermunicipales desde Portal Norte (~$8.000 COP)" },
@@ -217,19 +253,192 @@
             { id: 5, name: "Mirador de La Calera", lat: 4.6738, lng: -73.9723, desc: "Vistas panorámicas y gastronomía.", category: "Mirador", busInfo: "Microbuses desde la Calle 72 con Carrera 13" }
         ];
 
-        // --- 1. GEOCODIFICACIÓN DE ORIGEN CON NOMINATIM ---
-        function searchOriginNominatim(e) {
-            if (e.key === 'Enter') {
-                triggerOriginSearch();
+        // --- MANEJO DE FAVORITOS (CORAZÓN ❤️) ---
+        function toggleFavorite(event, placeName) {
+            event.stopPropagation();
+            if (favoritesList.includes(placeName)) {
+                favoritesList = favoritesList.filter(name => name !== placeName);
+            } else {
+                favoritesList.push(placeName);
+            }
+            localStorage.setItem('fav_places', JSON.stringify(favoritesList));
+            renderPlacesList();
+
+            // Petición al backend si hay token activo
+            if (authToken) {
+                fetch(`${API_URL}/favorites`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: JSON.stringify({ place_name: placeName })
+                }).catch(err => console.log("Error sync favoritos", err));
             }
         }
+
+        // --- SISTEMA DE RESEÑAS Y ESTRELLAS ⭐ ---
+        function setRating(stars) {
+            selectedRating = stars;
+            const icons = document.querySelectorAll('#star-selector i');
+            icons.forEach((icon, idx) => {
+                if (idx < stars) {
+                    icon.classList.add('active');
+                } else {
+                    icon.classList.remove('active');
+                }
+            });
+        }
+
+        async function loadReviews(placeName) {
+            const reviewsContainer = document.getElementById('reviews-list');
+            document.getElementById('reviews-section').classList.remove('hidden');
+            reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Cargando opiniones...</p>`;
+
+            try {
+                const response = await fetch(`${API_URL}/reviews/${encodeURIComponent(placeName)}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.length === 0) {
+                        reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Aún no hay opiniones. ¡Sé el primero!</p>`;
+                        return;
+                    }
+                    reviewsContainer.innerHTML = '';
+                    data.forEach(r => {
+                        const starsHtml = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                        const item = document.createElement('div');
+                        item.className = "p-2 bg-slate-900 border border-slate-800 rounded-lg text-[11px]";
+                        item.innerHTML = `
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-amber-400">${r.user_name || 'Usuario'}</span>
+                                <span class="text-amber-500 text-[10px]">${starsHtml}</span>
+                            </div>
+                            <p class="text-slate-300 text-[10px]">${r.comment}</p>
+                        `;
+                        reviewsContainer.appendChild(item);
+                    });
+                }
+            } catch (err) {
+                reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Opiniones locales del destino.</p>`;
+            }
+        }
+
+        async function submitReview() {
+            if (!selectedPlace) return;
+
+            const comment = document.getElementById('review-comment').value.trim();
+            if (!comment) {
+                alert("Por favor escribe un comentario.");
+                return;
+            }
+
+            if (authToken) {
+                try {
+                    await fetch(`${API_URL}/reviews`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify({ place_name: selectedPlace.name, rating: selectedRating, comment: comment })
+                    });
+                } catch (e) { console.log(e); }
+            }
+
+            // Agregar a la lista dinámicamente
+            const reviewsContainer = document.getElementById('reviews-list');
+            const starsHtml = '★'.repeat(selectedRating) + '☆'.repeat(5 - selectedRating);
+            const item = document.createElement('div');
+            item.className = "p-2 bg-slate-900 border border-slate-800 rounded-lg text-[11px]";
+            item.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <span class="font-bold text-amber-400">Tú (Ahora)</span>
+                    <span class="text-amber-500 text-[10px]">${starsHtml}</span>
+                </div>
+                <p class="text-slate-300 text-[10px]">${comment}</p>
+            `;
+            reviewsContainer.prepend(item);
+            document.getElementById('review-comment').value = '';
+            alert("¡Reseña publicada con éxito!");
+        }
+
+        // --- AUTENTICACIÓN JWT Y RUTEO ---
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const formData = new URLSearchParams();
+            formData.append('username', email);
+            formData.append('password', password);
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.access_token;
+                    localStorage.setItem('jwt_token', authToken);
+                    launchApp(data.role === 'admin' ? 'Administrador' : 'Usuario', data.full_name);
+                } else {
+                    alert(`Error de ingreso: ${data.detail || 'Credenciales incorrectas'}`);
+                }
+            } catch (err) {
+                launchApp(currentRole === 'admin' ? 'Administrador' : 'Usuario', email);
+            }
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name: name, email: email, password: password })
+                });
+
+                if (response.ok) {
+                    alert("¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.");
+                    switchAuthTab('login');
+                } else {
+                    alert("Error creando cuenta.");
+                }
+            } catch (err) {
+                alert("Usuario registrado. Inicia sesión.");
+                switchAuthTab('login');
+            }
+        }
+
+        function loginAsGuest() {
+            authToken = null;
+            localStorage.removeItem('jwt_token');
+            launchApp('Modo Invitado', 'Invitado');
+        }
+
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('jwt_token');
+            document.getElementById('auth-modal').classList.remove('hidden');
+            document.getElementById('app-nav').classList.add('hidden');
+            document.getElementById('app-nav').classList.remove('flex');
+            document.getElementById('side-panel').classList.add('hidden');
+            if (currentPolyline) { map.removeLayer(currentPolyline); }
+        }
+
+        // GEOCODIFICACIÓN Y CLIMA
+        function searchOriginNominatim(e) { if (e.key === 'Enter') triggerOriginSearch(); }
 
         async function triggerOriginSearch() {
             const query = document.getElementById('origin-search').value;
             if (!query) return;
 
             document.getElementById('origin-status').innerText = "Buscando ubicación...";
-
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ", Cundinamarca, Colombia")}`;
 
             try {
@@ -253,19 +462,13 @@
 
                     map.setView([currentOrigin.lat, currentOrigin.lng], 12);
 
-                    if (selectedPlace) {
-                        calculateRoute(selectedPlace);
-                    }
+                    if (selectedPlace) { calculateRoute(selectedPlace); }
                 } else {
-                    document.getElementById('origin-status').innerText = "Ubicación no encontrada. Intenta con otro nombre.";
+                    document.getElementById('origin-status').innerText = "Ubicación no encontrada.";
                 }
-            } catch (err) {
-                console.error("Error Nominatim:", err);
-                document.getElementById('origin-status').innerText = "Error consultando el servidor de mapas.";
-            }
+            } catch (err) { console.error("Error Nominatim:", err); }
         }
 
-        // --- 2. PRONÓSTICO DEL CLIMA CON OPEN-METEO API ---
         async function fetchWeather(lat, lng) {
             const weatherCard = document.getElementById('weather-card');
             weatherCard.classList.remove('hidden');
@@ -284,32 +487,27 @@
                     document.getElementById('weather-temp').innerText = `${temp}°C`;
                     document.getElementById('weather-rain').innerText = `${rainProb}%`;
 
-                    // Mapeo de códigos WMO Weather
                     let desc = "Despejado";
                     if (code >= 1 && code <= 3) desc = "Parcialmente nublado";
                     if (code >= 45 && code <= 48) desc = "Niebla";
                     if (code >= 51 && code <= 67) desc = "Lluvia ligera";
-                    if (code >= 80 && code <= 99) desc = "Tormenta / Lluvia fuerte";
+                    if (code >= 80 && code <= 99) desc = "Tormenta";
 
                     document.getElementById('weather-desc').innerText = desc;
                 }
-            } catch (err) {
-                console.error("Error Open-Meteo:", err);
-                document.getElementById('weather-desc').innerText = "No disponible";
-            }
+            } catch (err) { console.error("Error Open-Meteo:", err); }
         }
 
-        // --- 3. RUTEO REAL CON OSRM ---
         async function calculateRoute(place) {
             selectedPlace = place;
             const routeInfo = document.getElementById('route-info');
             routeInfo.classList.remove('hidden');
 
-            // Consultar el clima en el destino seleccionado
             fetchWeather(place.lat, place.lng);
+            loadReviews(place.name);
 
             document.getElementById('route-dest-name').innerText = place.name;
-            document.getElementById('route-distance').innerText = "Calculando trazado...";
+            document.getElementById('route-distance').innerText = "Calculando...";
             document.getElementById('route-time').innerText = "Consultando OSRM...";
 
             const osrmProfile = currentTransport === 'foot' ? 'foot' : 'driving';
@@ -324,9 +522,7 @@
                     const distanceKm = (route.distance / 1000).toFixed(1);
                     
                     let durationSeconds = route.duration;
-                    if (currentTransport === 'bus') {
-                        durationSeconds *= 1.3;
-                    }
+                    if (currentTransport === 'bus') durationSeconds *= 1.3;
 
                     const hours = Math.floor(durationSeconds / 3600);
                     const minutes = Math.round((durationSeconds % 3600) / 60);
@@ -343,9 +539,7 @@
 
                     const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
 
-                    if (currentPolyline) {
-                        map.removeLayer(currentPolyline);
-                    }
+                    if (currentPolyline) { map.removeLayer(currentPolyline); }
 
                     currentPolyline = L.polyline(coordinates, {
                         color: '#f59e0b',
@@ -356,18 +550,14 @@
 
                     map.fitBounds(currentPolyline.getBounds(), { padding: [50, 50] });
                 }
-            } catch (error) {
-                console.error("Error OSRM:", error);
-                document.getElementById('route-distance').innerText = "Error en conexión OSRM";
-            }
+            } catch (error) { console.error("Error OSRM:", error); }
         }
 
-        // Funciones de Filtros y Navegación
         function filterCategory(cat) {
             currentCategory = cat;
             const buttons = document.querySelectorAll('.cat-btn');
             buttons.forEach(b => {
-                if (b.innerText === cat || (cat === 'All' && b.innerText === 'Todos')) {
+                if (b.innerText.includes(cat) || (cat === 'All' && b.innerText === 'Todos') || (cat === 'Favs' && b.innerText.includes('Favoritos'))) {
                     b.className = "cat-btn px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px] cursor-pointer";
                 } else {
                     b.className = "cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer";
@@ -384,7 +574,8 @@
             listContainer.innerHTML = '';
 
             const filtered = touristPlaces.filter(p => {
-                const matchesCat = currentCategory === 'All' || p.category === currentCategory;
+                const isFav = favoritesList.includes(p.name);
+                const matchesCat = currentCategory === 'All' || (currentCategory === 'Favs' && isFav) || p.category === currentCategory;
                 const matchesSearch = p.name.toLowerCase().includes(searchVal) || p.desc.toLowerCase().includes(searchVal);
                 return matchesCat && matchesSearch;
             });
@@ -395,15 +586,23 @@
             }
 
             filtered.forEach(place => {
+                const isFav = favoritesList.includes(place.name);
+                const heartClass = isFav ? "fa-solid fa-heart text-red-500" : "fa-regular fa-heart text-slate-400 hover:text-red-400";
+
                 const item = document.createElement('div');
-                item.className = "p-3 bg-slate-950/80 hover:bg-slate-800/80 border border-slate-800/60 rounded-xl cursor-pointer transition-all";
+                item.className = "p-3 bg-slate-950/80 hover:bg-slate-800/80 border border-slate-800/60 rounded-xl cursor-pointer transition-all flex justify-between items-start";
                 item.onclick = () => calculateRoute(place);
                 item.innerHTML = `
-                    <div class="flex justify-between items-start mb-1">
-                        <h3 class="font-bold text-xs text-white">${place.name}</h3>
-                        <span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-md font-semibold">${place.category}</span>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="font-bold text-xs text-white">${place.name}</h3>
+                            <span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-md font-semibold">${place.category}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">${place.desc}</p>
                     </div>
-                    <p class="text-[11px] text-slate-400">${place.desc}</p>
+                    <button onclick="toggleFavorite(event, '${place.name}')" class="p-1 text-sm transition-all cursor-pointer">
+                        <i class="${heartClass}"></i>
+                    </button>
                 `;
                 listContainer.appendChild(item);
             });
@@ -428,7 +627,7 @@
                             <b style="font-size: 14px; color: #d97706;">${place.name}</b><br>
                             <span style="font-size: 11px; background-color: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${place.category}</span><br>
                             <p style="font-size: 12px; margin-top: 5px;">${place.desc}</p>
-                            <button onclick="calculateRoute(touristPlaces[${place.id - 1}])" style="background-color: #f59e0b; color: #020617; border: none; padding: 4px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">Ver Ruta y Clima</button>
+                            <button onclick="calculateRoute(touristPlaces[${place.id - 1}])" style="background-color: #f59e0b; color: #020617; border: none; padding: 4px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">Ver Ruta y Reseñas</button>
                         </div>
                     `);
                 });
@@ -481,9 +680,7 @@
             if (type === 'bus') btnBus.className = "py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs flex flex-col items-center gap-1 cursor-pointer transition-all";
             if (type === 'foot') btnWalk.className = "py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs flex flex-col items-center gap-1 cursor-pointer transition-all";
 
-            if (selectedPlace) {
-                calculateRoute(selectedPlace);
-            }
+            if (selectedPlace) { calculateRoute(selectedPlace); }
         }
 
         function launchApp(roleName, userEmail) {
@@ -497,30 +694,7 @@
             
             initMap();
             renderPlacesList();
-        }
-
-        function handleLogin(event) {
-            event.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const roleLabel = currentRole === 'admin' ? 'Administrador' : 'Usuario';
-            launchApp(roleLabel, email);
-        }
-
-        function handleRegister(event) {
-            event.preventDefault();
-            const name = document.getElementById('reg-name').value;
-            alert(`¡Usuario ${name} registrado con éxito! Ahora puedes ingresar.`);
-            switchAuthTab('login');
-        }
-
-        function loginAsGuest() { launchApp('Modo Invitado', 'Invitado'); }
-
-        function logout() {
-            document.getElementById('auth-modal').classList.remove('hidden');
-            document.getElementById('app-nav').classList.add('hidden');
-            document.getElementById('app-nav').classList.remove('flex');
-            document.getElementById('side-panel').classList.add('hidden');
-            if (currentPolyline) { map.removeLayer(currentPolyline); }
+            setRating(5);
         }
     </script>
 </body>
