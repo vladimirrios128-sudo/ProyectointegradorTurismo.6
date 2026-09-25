@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turismo Inteligente - Destinos de Colombia</title>
+    <title>Turismo Inteligente - Colombia</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome para iconos -->
@@ -229,21 +229,21 @@
         let favoritesList = JSON.parse(localStorage.getItem('fav_places') || '[]');
         let currentOrigin = { lat: 4.5981, lng: -74.0758, name: "Bogotá - Centro" };
 
-        // LISTA AMPLIADA DE LUGARES TURÍSTICOS CON FOTOS REALES (INCLUYE TOTA, PIEDRA COLGADA Y LA COCHA - PASTO)
+        // LISTA AMPLIADA CON FOTOGRAFÍAS REALES Y VERIFICADAS
         const touristPlaces = [
-            { id: 1, name: "Rocas de Suesca", lat: 5.1053, lng: -73.8011, desc: "Escalada deportiva y farallones rocosos icónicos.", category: "Aventura", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80", busInfo: "Flotas Alianza desde Portal Norte (~$12.000 COP)" },
-            { id: 2, name: "Laguna de Tota", lat: 5.5458, lng: -72.9213, desc: "El lago más grande de Colombia con su famosa Playa Blanca.", category: "Naturaleza", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80", busInfo: "Buses desde Sogamoso / Aquitania (~$8.000 COP)" },
-            { id: 3, name: "Piedra Colgada de Susa", lat: 5.4521, lng: -73.8114, desc: "Imponente formación rocosa y mirador hacia la sabana.", category: "Aventura", img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80", busInfo: "Buses hacia Ubaté / Susa desde Portal Norte" },
-            { id: 4, name: "Laguna de la Cocha (Pasto)", lat: 1.1550, lng: -77.1500, desc: "Lago místico en Nariño con sus casitas estilo suizo en El Encano.", category: "Naturaleza", img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80", busInfo: "Colectivo desde Pasto hasta El Encano (~$6.000 COP)" },
-            { id: 5, name: "Catedral de Sal Zipaquirá", lat: 5.0189, lng: -74.0044, desc: "Santuario subterráneo esculpido en sal.", category: "Cultural", img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80", busInfo: "Buses intermunicipales desde Portal Norte (~$8.000 COP)" },
-            { id: 6, name: "Laguna de Guatavita", lat: 4.9786, lng: -73.7744, desc: "Leyenda de El Dorado y senderismo ecológico.", category: "Naturaleza", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80", busInfo: "Flotas Valle de Tenza / Guatavita (~$14.000 COP)" },
-            { id: 7, name: "Cerro de Monserrate", lat: 4.6058, lng: -74.0555, desc: "Mirador icónico de Bogotá y santuario.", category: "Histórico", img: "https://images.unsplash.com/photo-1583531172005-814191b8b6c0?auto=format&fit=crop&w=600&q=80", busInfo: "TransMilenio Estación Las Aguas / Teleférico" },
-            { id: 8, name: "Mirador de La Calera", lat: 4.6738, lng: -73.9723, desc: "Vistas espectaculares de la sabana y gastronomía.", category: "Mirador", img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80", busInfo: "Microbuses desde la Calle 72 con Carrera 13" },
-            { id: 9, name: "Ciudad Amurallada Cartagena", lat: 10.4236, lng: -75.5512, desc: "Centro histórico colonial rodeado de murallas.", category: "Histórico", img: "https://images.unsplash.com/photo-1583531172005-814191b8b6c0?auto=format&fit=crop&w=600&q=80", busInfo: "Vía terrestre por la Troncal del Caribe / Avión" },
-            { id: 10, name: "Parque Nacional Tayrona", lat: 11.3000, lng: -74.0500, desc: "Playas vírgenes, selva tropical y biodiversidad.", category: "Naturaleza", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80", busInfo: "Buses desde Santa Marta hacia El Zaino (~$15.000 COP)" }
+            { id: 1, name: "Rocas de Suesca", lat: 5.1053, lng: -73.8011, desc: "Escalada deportiva y farallones rocosos icónicos.", category: "Aventura", img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Rocas_de_Suesca.JPG", busInfo: "Flotas Alianza desde Portal Norte (~$12.000 COP)" },
+            { id: 2, name: "Laguna de Tota", lat: 5.5458, lng: -72.9213, desc: "El lago más grande de Colombia con Playa Blanca a 3.015 msnm.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Laguna_de_tota-_Boyac%C3%A1_Colombia.jpg", busInfo: "Buses desde Sogamoso / Aquitania (~$8.000 COP)" },
+            { id: 3, name: "Piedra Colgada de Susa", lat: 5.4521, lng: -73.8114, desc: "Imponente formación rocosa y mirador hacia la sabana.", category: "Aventura", img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Susa_Cundinamarca.jpg", busInfo: "Buses hacia Ubaté / Susa desde Portal Norte" },
+            { id: 4, name: "Laguna de la Cocha (Pasto)", lat: 1.1550, lng: -77.1500, desc: "Lago místico de origen glaciar con casitas de estilo suizo en El Encano.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Laguna_de_la_Cocha_-_Nari%C3%B1o.jpg", busInfo: "Colectivo desde Pasto hasta El Encano (~$6.000 COP)" },
+            { id: 5, name: "Catedral de Sal Zipaquirá", lat: 5.0189, lng: -74.0044, desc: "Santuario subterráneo esculpido en sal.", category: "Cultural", img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Zipaquira_Salt_Cathedral_2016.jpg", busInfo: "Buses intermunicipales desde Portal Norte (~$8.000 COP)" },
+            { id: 6, name: "Laguna de Guatavita", lat: 4.9786, lng: -73.7744, desc: "Cuna de la Leyenda de El Dorado y senderismo ecológico.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/8/86/Laguna_Guatavita_1.JPG", busInfo: "Flotas Valle de Tenza / Guatavita (~$14.000 COP)" },
+            { id: 7, name: "Cerro de Monserrate", lat: 4.6058, lng: -74.0555, desc: "Mirador icónico de Bogotá y santuario.", category: "Histórico", img: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Monserrate_Bogota.jpg", busInfo: "TransMilenio Estación Las Aguas / Teleférico" },
+            { id: 8, name: "Mirador de La Calera", lat: 4.6738, lng: -73.9723, desc: "Vistas espectaculares de la sabana y gastronomía.", category: "Mirador", img: "https://upload.wikimedia.org/wikipedia/commons/2/27/La_Calera_Cundinamarca.jpg", busInfo: "Microbuses desde la Calle 72 con Carrera 13" },
+            { id: 9, name: "Ciudad Amurallada Cartagena", lat: 10.4236, lng: -75.5512, desc: "Centro histórico colonial rodeado de murallas.", category: "Histórico", img: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cartagena_de_Indias_-_Ciudad_Amurallada.jpg", busInfo: "Vía terrestre por la Troncal del Caribe / Avión" },
+            { id: 10, name: "Parque Nacional Tayrona", lat: 11.3000, lng: -74.0500, desc: "Playas vírgenes, selva tropical y biodiversidad.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/3/36/Playa_Cabo_San_Juan_-_Tayrona.jpg", busInfo: "Buses desde Santa Marta hacia El Zaino (~$15.000 COP)" }
         ];
 
-        // --- MANEJO DE FAVORITOS ---
+        // MANEJO DE FAVORITOS
         function toggleFavorite(event, placeName) {
             event.stopPropagation();
             if (favoritesList.includes(placeName)) {
@@ -263,7 +263,7 @@
             }
         }
 
-        // --- SISTEMA DE RESEÑAS ⭐ ---
+        // SISTEMA DE RESEÑAS ⭐
         function setRating(stars) {
             selectedRating = stars;
             const icons = document.querySelectorAll('#star-selector i');
@@ -337,7 +337,7 @@
             alert("¡Reseña publicada!");
         }
 
-        // --- GEOCODIFICACIÓN Y CLIMA ---
+        // GEOCODIFICACIÓN Y CLIMA
         function searchOriginNominatim(e) { if (e.key === 'Enter') triggerOriginSearch(); }
 
         async function triggerOriginSearch() {
@@ -366,7 +366,7 @@
                         originMarker.getPopup().setContent(`<b>Tu Ubicación Actual</b><br>${currentOrigin.name}`);
                     }
 
-                    map.setView([currentOrigin.lat, currentOrigin.lng], 9);
+                    map.setView([currentOrigin.lat, currentOrigin.lng], 8);
                     if (selectedPlace) { calculateRoute(selectedPlace); }
                 } else {
                     document.getElementById('origin-status').innerText = "Ubicación no encontrada.";
