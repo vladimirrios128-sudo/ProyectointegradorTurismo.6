@@ -6,7 +6,7 @@
     <title>Turismo Inteligente - Colombia</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js para gráficas de métricas del Dashboard -->
+    <!-- Chart.js para gráficas del Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,9 +30,9 @@
             <h1 class="text-lg font-bold text-white">Turismo Inteligente - Colombia</h1>
         </div>
         <div class="flex items-center gap-4">
-            <!-- Botón exclusivo para abrir el Dashboard Analítico del Admin -->
+            <!-- Botón exclusivo del Admin -->
             <button id="admin-dashboard-btn" onclick="openAdminDashboard()" class="hidden text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-amber-500/20">
-                <i class="fa-solid fa-chart-line"></i> Dashboard Analítico
+                <i class="fa-solid fa-chart-line"></i> Dashboard & Visitantes
             </button>
 
             <span id="user-badge" class="bg-slate-800 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-700">
@@ -47,7 +47,7 @@
     <!-- Panel Lateral de Filtros, Rutas, Clima, Favoritos y Reseñas -->
     <div id="side-panel" class="hidden fixed top-20 left-6 z-30 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-5 w-88 shadow-2xl max-h-[calc(100vh-100px)] overflow-y-auto">
         
-        <!-- GEOCODIFICACIÓN DE ORIGEN (Búsqueda Nominatim) -->
+        <!-- GEOCODIFICACIÓN DE ORIGEN -->
         <div class="mb-4">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
                 <i class="fa-solid fa-location-crosshairs text-amber-500"></i> Tu Ubicación (Origen)
@@ -95,7 +95,7 @@
             </div>
         </div>
 
-        <!-- TARJETA DEL CLIMA EN TIEMPO REAL -->
+        <!-- TARJETA DEL CLIMA -->
         <div id="weather-card" class="hidden mb-4 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs">
             <div class="flex justify-between items-center mb-1">
                 <p class="font-bold text-amber-400 flex items-center gap-1.5 text-xs">
@@ -113,7 +113,7 @@
             </div>
         </div>
 
-        <!-- TARJETA DE DETALLES DE RUTA SELECCIONADA -->
+        <!-- TARJETA DE RUTA SELECCIONADA -->
         <div id="route-info" class="hidden mb-4 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs">
             <div class="flex justify-between items-center mb-1">
                 <p id="route-dest-name" class="font-bold text-amber-400 text-sm"></p>
@@ -130,7 +130,7 @@
             <p id="route-transport-info" class="text-[11px] text-slate-400 mt-2 border-t border-slate-800 pt-1.5"></p>
         </div>
 
-        <!-- TARJETA DE DATO CURIOSO DEL DESTINO -->
+        <!-- TARJETA DE DATO CURIOSO -->
         <div id="fun-fact-card" class="hidden mb-4 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs">
             <p class="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
                 <i class="fa-solid fa-lightbulb text-amber-400"></i> ¿Sabías que...?
@@ -171,18 +171,18 @@
     <!-- Contenedor del Mapa -->
     <div id="map" class="z-10"></div>
 
-    <!-- MODAL DASHBOARD ANALÍTICO (PANTALLA 4: COMERCIOS Y ADMINISTRADOR) -->
+    <!-- MODAL DASHBOARD ANALÍTICO + REGISTRO DE VISITANTES (PANTALLA 4) -->
     <div id="dashboard-modal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 overflow-y-auto p-6">
         <div class="max-w-7xl mx-auto space-y-6">
             
-            <!-- HEADER DEL DASHBOARD CON SELECTOR DE TEMPORADA -->
+            <!-- HEADER CON SELECTOR DE TEMPORADA -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900 border border-slate-800 p-5 rounded-2xl gap-4">
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="p-2 bg-amber-500/10 text-amber-400 rounded-lg"><i class="fa-solid fa-chart-line text-xl"></i></span>
-                        <h2 class="text-2xl font-extrabold text-white">4. TABLERO DE ANÁLISIS GLOBAL</h2>
+                        <h2 class="text-2xl font-extrabold text-white">4. TABLERO DE ANÁLISIS GLOBAL Y VISITANTES</h2>
                     </div>
-                    <p class="text-xs text-slate-400 mt-1">Flujos estadísticos anonimizados en tiempo real y telemetría del servidor.</p>
+                    <p class="text-xs text-slate-400 mt-1">Gestión de flujo turístico, sesiones activas y métricas de servidor.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <label class="text-xs font-semibold uppercase text-slate-400 flex items-center gap-1.5">
@@ -229,9 +229,8 @@
                 </div>
             </div>
 
-            <!-- BARRAS HORIZONTALES Y MONITOREO TÉCNICO ADMIN -->
+            <!-- BARRAS HORIZONTALES Y TELEMETRÍA DE SERVIDOR -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
                 <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
                     <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-chart-bar text-amber-500"></i> Preferencias Principales de Turistas
@@ -284,7 +283,39 @@
                     </div>
                     <p class="text-[10px] text-slate-500 text-center mt-4"><i class="fa-solid fa-shield-halved text-amber-500 mr-1"></i> Telemetría cifrada y sincronizada con FastAPI + SQLite3.</p>
                 </div>
+            </div>
 
+            <!-- SECCIÓN NUEVA EXCLUSIVA DE ADMIN: REGISTRO DE VISITANTES EN TIEMPO REAL -->
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users text-amber-500"></i> Registro de Visitantes en Tiempo Real (Anonimizado)
+                        </h3>
+                        <p class="text-xs text-slate-400">Conexiones activas, consultas de ruta y estado de sesión.</p>
+                    </div>
+                    <button onclick="exportVisitorsCSV()" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 font-semibold px-3 py-1.5 rounded-lg border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-csv"></i> Exportar Reporte CSV
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase text-[10px]">
+                            <tr>
+                                <th class="p-3">ID Anonimizado</th>
+                                <th class="p-3">Ubicación Origen</th>
+                                <th class="p-3">Destino Consultado</th>
+                                <th class="p-3">Transporte</th>
+                                <th class="p-3">Hora Conexión</th>
+                                <th class="p-3">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitors-table-body" class="divide-y divide-slate-800/60 text-slate-300">
+                            <!-- Inyección dinámica de filas -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
@@ -364,501 +395,74 @@
         let favoritesList = JSON.parse(localStorage.getItem('fav_places') || '[]');
         let currentOrigin = { lat: 4.5981, lng: -74.0758, name: "Bogotá - Centro" };
 
-        // LISTA DE 16 DESTINOS DE COLOMBIA
-        const touristPlaces = [
-            { 
-                id: 1, 
-                name: "Parque Nacional Natural El Cocuy", 
-                lat: 6.4000, 
-                lng: -72.3000, 
-                desc: "La masa glaciar más grande de Colombia con más de 25 picos nevados.", 
-                category: "Aventura", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/e/e3/PNN_El_Cocuy.jpg", 
-                busInfo: "Buses a El Cocuy (~$70.000 COP)",
-                funFact: "Posee la masa continua de nieve e hielo más grande de los Andes septentrionales."
-            },
-            { 
-                id: 2, 
-                name: "Parque Nacional Natural Los Nevados (Ruiz)", 
-                lat: 4.8920, 
-                lng: -75.3188, 
-                desc: "Estratovolcán nevado y ecosistemas de páramo.", 
-                category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Nevado_del_Ruiz_volcano.jpg", 
-                busInfo: "Tours autorizados desde Manizales",
-                funFact: "Sus frailejones crecen solo 1 cm por año."
-            },
-            { 
-                id: 3, 
-                name: "Laguna de Tota", 
-                lat: 5.5458, 
-                lng: -72.9213, 
-                desc: "El lago más grande de Colombia con su famosa Playa Blanca a 3.015 msnm.", 
-                category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Laguna_de_tota-_Boyac%C3%A1_Colombia.jpg", 
-                busInfo: "Buses desde Sogamoso (~$8.000 COP)",
-                funFact: "Alberga la playa de agua dulce a mayor altitud de América del Sur."
-            },
-            { 
-                id: 4, 
-                name: "Rocas de Suesca", 
-                lat: 5.1053, 
-                lng: -73.8011, 
-                desc: "Escalada deportiva y farallones rocosos icónicos.", 
-                category: "Aventura", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Rocas_de_Suesca.JPG", 
-                busInfo: "Flotas desde Portal Norte (~$12.000 COP)",
-                funFact: "Es considerada la cuna de la escalada en roca en Colombia."
-            },
-            { 
-                id: 5, 
-                name: "Piedra del Peñol - Guatapé", 
-                lat: 6.2200, 
-                lng: -75.1798, 
-                desc: "Monolito gigante de 220 metros con vista panorámica a un embalse rodeado de zócalos de colores.", 
-                category: "Aventura", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/5/53/El_Pe%C3%B1ol_Guatape_Colombia.jpg", 
-                busInfo: "Buses desde la Terminal del Norte de Medellín",
-                funFact: "Tiene 740 escalones incrustados en su grieta principal."
-            },
-            { 
-                id: 6, 
-                name: "Cabo de la Vela", 
-                lat: 12.2071, 
-                lng: -72.1802, 
-                desc: "Encuentro mágico entre el desierto wayúu y el Mar Caribe.", 
-                category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/c/c2/Cabo_de_la_Vela%2C_La_Guajira.jpg", 
-                busInfo: "Camionetas 4x4 desde Uribia o Riohacha",
-                funFact: "Territorio sagrado donde las almas de la comunidad Wayúu viajan tras morir."
-            },
-            { 
-                id: 7, 
-                name: "Nuquí - Chocó", 
-                lat: 5.7095, 
-                lng: -77.2667, 
-                desc: "Avistamiento de ballenas jorobadas y selva tropical frente al Pacífico.", 
-                category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Nuqu%C3%AD_Choc%C3%B3_Colombia.jpg", 
-                busInfo: "Vuelo Charter desde Medellín",
-                funFact: "Recibe a miles de ballenas jorobadas que viajan desde la Antártida."
-            },
-            { 
-                id: 8, 
-                name: "Caño Cristales - Meta", 
-                lat: 2.2472, 
-                lng: -73.7847, 
-                desc: "El río de los cinco colores o el río más hermoso del mundo.", 
-                category: "Aventura", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Cano_Cristales_Macarena_Colombia.jpg", 
-                busInfo: "Vuelo a La Macarena + Canoa por el río",
-                funFact: "Sus colores los produce la planta acuática Macarenia clavigera."
-            },
-            { 
-                id: 9, 
-                name: "Puerto Nariño - Amazonas", 
-                lat: -3.7799, 
-                lng: -70.3640, 
-                desc: "Poblado ecológico en el Amazonas y delfines rosados.", 
-                category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Puerto_Nari%C3%B1o_Amazonas.jpg", 
-                busInfo: "Lancha rápida desde Leticia (~$40.000 COP)",
-                funFact: "Municipio 100% peatonal sin vehículos a motor de combustión."
-            },
-            { 
-                id: 10, 
-                name: "Piedra Colgada de Susa", 
-                lat: 5.4521, 
-                lng: -73.8114, 
-                desc: "Imponente formación rocosa y mirador sobre el valle de Ubaté.", 
-                category: "Aventura", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Susa_Cundinamarca.jpg", 
-                busInfo: "Buses hacia Ubaté / Susa desde Portal Norte",
-                funFact: "Sobrepasa el abismo dando la ilusión óptica de estar flotando en el aire."
-            },
-            { 
-                id: 11, 
-                name: "Laguna de la Cocha (Pasto)", 
-                lat: 1.1550, 
-                lng: -77.1500, 
-                desc: "Embalse natural de origen glaciar con casitas estilo suizo en El Encano.", 
-                category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Laguna_de_la_Cocha_-_Nari%C3%B1o.jpg", 
-                busInfo: "Colectivo desde Pasto hasta El Encano (~$6.000 COP)",
-                funFact: "Alberga la Isla La Corota, el Santuario de Flora más pequeño del país."
-            },
-            { 
-                id: 12, 
-                name: "Catedral de Sal Zipaquirá", 
-                lat: 5.0189, 
-                lng: -74.0044, 
-                desc: "Santuario subterráneo esculpido en sal.", 
-                category: "Cultural", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Zipaquira_Salt_Cathedral_2016.jpg", 
-                busInfo: "Buses intermunicipales desde Portal Norte",
-                funFact: "Primera Maravilla de Colombia a 180 metros bajo tierra."
-            },
-            { 
-                id: 13, 
-                name: "Laguna de Guatavita", 
-                lat: 4.9786, 
-                lng: -73.7744, 
-                desc: "Cuna sagrada de la Leyenda de El Dorado.", 
-                category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/8/86/Laguna_Guatavita_1.JPG", 
-                busInfo: "Flotas Valle de Tenza / Guatavita",
-                funFact: "Sitio del ritual del Zipa Muisca bañado en oro en polvo."
-            },
-            { 
-                id: 14, 
-                name: "Cerro de Monserrate", 
-                lat: 4.6058, 
-                lng: -74.0555, 
-                desc: "Santuario y mirador panorámico sobre Bogotá.", 
-                category: "Histórico", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Monserrate_Bogota.jpg", 
-                busInfo: "TransMilenio Estación Las Aguas / Teleférico",
-                funFact: "Se encuentra a 3.152 msnm dominando la vista de la capital."
-            },
-            { 
-                id: 15, 
-                name: "Ciudad Amurallada Cartagena", 
-                lat: 10.4236, 
-                lng: -75.5512, 
-                desc: "Patrimonio histórico con arquitectura colonial fortificada.", 
-                category: "Histórico", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cartagena_de_Indias_-_Ciudad_Amurallada.jpg", 
-                busInfo: "Vía terrestre por la Troncal del Caribe / Avión",
-                funFact: "Murallas construidas durante más de 200 años contra piratas."
-            },
-            { 
-                id: 16, 
-                name: "Parque Nacional Tayrona", 
-                lat: 11.3000, 
-                lng: -74.0500, 
-                desc: "Encuentro entre la Sierra Nevada de Santa Marta y el mar Caribe.", 
-                category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/3/36/Playa_Cabo_San_Juan_-_Tayrona.jpg", 
-                busInfo: "Buses desde Santa Marta hacia El Zaino",
-                funFact: "Unión directa de nieve de la Sierra con las playas caribeñas."
-            }
+        // DATOS MOCK ANONIMIZADOS DE VISITANTES PARA VISTA DE ADMIN
+        const visitorData = [
+            { id: "VIS-8801", origin: "Bogotá - Chapinero", destination: "PNN El Cocuy", transport: "Vehículo", time: "09:12 AM", status: "Activo" },
+            { id: "VIS-8802", origin: "Medellín - El Poblado", destination: "Piedra del Peñol - Guatapé", transport: "Autobús", time: "09:08 AM", status: "Activo" },
+            { id: "VIS-8803", origin: "Manizales - Centro", destination: "PNN Los Nevados (Ruiz)", transport: "Vehículo", time: "08:55 AM", status: "Inactivo" },
+            { id: "VIS-8804", origin: "Tunja - Norte", destination: "Laguna de Tota", transport: "Autobús", time: "08:42 AM", status: "Activo" },
+            { id: "VIS-8805", origin: "Pasto - Ejido", destination: "Laguna de la Cocha", transport: "Caminata", time: "08:30 AM", status: "Activo" },
+            { id: "VIS-8806", origin: "Santa Marta", destination: "Parque Nacional Tayrona", transport: "Autobús", time: "08:15 AM", status: "Inactivo" }
         ];
 
-        // FUNCIONES DE FAVORITOS
-        function toggleFavorite(event, placeName) {
-            event.stopPropagation();
-            if (favoritesList.includes(placeName)) {
-                favoritesList = favoritesList.filter(name => name !== placeName);
-            } else {
-                favoritesList.push(placeName);
-            }
-            localStorage.setItem('fav_places', JSON.stringify(favoritesList));
-            renderPlacesList();
+        // LISTA DE DESTINOS
+        const touristPlaces = [
+            { id: 1, name: "Parque Nacional Natural El Cocuy", lat: 6.4000, lng: -72.3000, desc: "La masa glaciar más grande de Colombia con más de 25 picos nevados.", category: "Aventura", img: "https://upload.wikimedia.org/wikipedia/commons/e/e3/PNN_El_Cocuy.jpg", busInfo: "Buses a El Cocuy (~$70.000 COP)", funFact: "Posee la masa continua de nieve e hielo más grande de los Andes septentrionales." },
+            { id: 2, name: "Parque Nacional Natural Los Nevados (Ruiz)", lat: 4.8920, lng: -75.3188, desc: "Estratovolcán nevado y ecosistemas de páramo.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Nevado_del_Ruiz_volcano.jpg", busInfo: "Tours autorizados desde Manizales", funFact: "Sus frailejones crecen solo 1 cm por año." },
+            { id: 3, name: "Laguna de Tota", lat: 5.5458, lng: -72.9213, desc: "El lago más grande de Colombia con su famosa Playa Blanca a 3.015 msnm.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Laguna_de_tota-_Boyac%C3%A1_Colombia.jpg", busInfo: "Buses desde Sogamoso (~$8.000 COP)", funFact: "Alberga la playa de agua dulce a mayor altitud de América del Sur." },
+            { id: 4, name: "Rocas de Suesca", lat: 5.1053, lng: -73.8011, desc: "Escalada deportiva y farallones rocosos icónicos.", category: "Aventura", img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Rocas_de_Suesca.JPG", busInfo: "Flotas desde Portal Norte (~$12.000 COP)", funFact: "Es considerada la cuna de la escalada en roca en Colombia." },
+            { id: 5, name: "Piedra del Peñol - Guatapé", lat: 6.2200, lng: -75.1798, desc: "Monolito gigante de 220 metros con vista panorámica a un embalse.", category: "Aventura", img: "https://upload.wikimedia.org/wikipedia/commons/5/53/El_Pe%C3%B1ol_Guatape_Colombia.jpg", busInfo: "Buses desde la Terminal del Norte de Medellín", funFact: "Tiene 740 escalones incrustados en su grieta principal." },
+            { id: 6, name: "Cabo de la Vela", lat: 12.2071, lng: -72.1802, desc: "Encuentro mágico entre el desierto wayúu y el Mar Caribe.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/c/c2/Cabo_de_la_Vela%2C_La_Guajira.jpg", busInfo: "Camionetas 4x4 desde Uribia", funFact: "Territorio sagrado donde viajan las almas de los Wayúu." },
+            { id: 7, name: "Nuquí - Chocó", lat: 5.7095, lng: -77.2667, desc: "Avistamiento de ballenas jorobadas y selva tropical.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Nuqu%C3%AD_Choc%C3%B3_Colombia.jpg", busInfo: "Vuelo Charter desde Medellín", funFact: "Recibe a miles de ballenas jorobadas de la Antártida." },
+            { id: 8, name: "Caño Cristales - Meta", lat: 2.2472, lng: -73.7847, desc: "El río de los cinco colores o el río más hermoso del mundo.", category: "Aventura", img: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Cano_Cristales_Macarena_Colombia.jpg", busInfo: "Vuelo a La Macarena + Canoa por el río", funFact: "Sus colores son producidos por la planta Macarenia clavigera." },
+            { id: 9, name: "Puerto Nariño - Amazonas", lat: -3.7799, lng: -70.3640, desc: "Poblado ecológico en el Amazonas y delfines rosados.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Puerto_Nari%C3%B1o_Amazonas.jpg", busInfo: "Lancha rápida desde Leticia", funFact: "Municipio 100% peatonal sin vehículos a motor." },
+            { id: 10, name: "Piedra Colgada de Susa", lat: 5.4521, lng: -73.8114, desc: "Formación rocosa y mirador sobre el valle de Ubaté.", category: "Aventura", img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Susa_Cundinamarca.jpg", busInfo: "Buses hacia Ubaté / Susa", funFact: "Da la ilusión óptica de estar flotando en el aire." },
+            { id: 11, name: "Laguna de la Cocha (Pasto)", lat: 1.1550, lng: -77.1500, desc: "Embalse natural de origen glaciar con casitas de estilo suizo.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Laguna_de_la_Cocha_-_Nari%C3%B1o.jpg", busInfo: "Colectivo desde Pasto hasta El Encano", funFact: "Alberga el Santuario de Flora Isla La Corota." },
+            { id: 12, name: "Catedral de Sal Zipaquirá", lat: 5.0189, lng: -74.0044, desc: "Santuario subterráneo esculpido en sal.", category: "Cultural", img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Zipaquira_Salt_Cathedral_2016.jpg", busInfo: "Buses intermunicipales desde Portal Norte", funFact: "Primera Maravilla de Colombia a 180 metros bajo tierra." },
+            { id: 13, name: "Laguna de Guatavita", lat: 4.9786, lng: -73.7744, desc: "Cuna sagrada de la Leyenda de El Dorado.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/8/86/Laguna_Guatavita_1.JPG", busInfo: "Flotas Valle de Tenza / Guatavita", funFact: "Sitio del ritual del Zipa Muisca bañado en oro." },
+            { id: 14, name: "Cerro de Monserrate", lat: 4.6058, lng: -74.0555, desc: "Santuario y mirador panorámico sobre Bogotá.", category: "Histórico", img: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Monserrate_Bogota.jpg", busInfo: "TransMilenio Estación Las Aguas", funFact: "Ubicado a 3.152 msnm sobre la capital." },
+            { id: 15, name: "Ciudad Amurallada Cartagena", lat: 10.4236, lng: -75.5512, desc: "Patrimonio histórico con arquitectura colonial.", category: "Histórico", img: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cartagena_de_Indias_-_Ciudad_Amurallada.jpg", busInfo: "Vía terrestre / Avión", funFact: "Murallas construidas durante más de 200 años." },
+            { id: 16, name: "Parque Nacional Tayrona", lat: 11.3000, lng: -74.0500, desc: "Encuentro entre la Sierra Nevada y el Mar Caribe.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/3/36/Playa_Cabo_San_Juan_-_Tayrona.jpg", busInfo: "Buses desde Santa Marta hacia El Zaino", funFact: "Unión directa de la Sierra Nevada con el mar." }
+        ];
 
-            if (authToken) {
-                fetch(`${API_URL}/favorites`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                    body: JSON.stringify({ place_name: placeName })
-                }).catch(err => console.log("Error sync favoritos", err));
-            }
-        }
-
-        // FUNCIONES DE RESEÑAS ⭐
-        function setRating(stars) {
-            selectedRating = stars;
-            const icons = document.querySelectorAll('#star-selector i');
-            icons.forEach((icon, idx) => {
-                if (idx < stars) icon.classList.add('active');
-                else icon.classList.remove('active');
-            });
-        }
-
-        async function loadReviews(placeName) {
-            const reviewsContainer = document.getElementById('reviews-list');
-            document.getElementById('reviews-section').classList.remove('hidden');
-            reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Cargando opiniones...</p>`;
-
-            try {
-                const response = await fetch(`${API_URL}/reviews/${encodeURIComponent(placeName)}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.length === 0) {
-                        reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Aún no hay opiniones. ¡Sé el primero!</p>`;
-                        return;
-                    }
-                    reviewsContainer.innerHTML = '';
-                    data.forEach(r => {
-                        const starsHtml = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-                        const item = document.createElement('div');
-                        item.className = "p-2 bg-slate-900 border border-slate-800 rounded-lg text-[11px]";
-                        item.innerHTML = `
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-amber-400">${r.user_name || 'Usuario'}</span>
-                                <span class="text-amber-500 text-[10px]">${starsHtml}</span>
-                            </div>
-                            <p class="text-slate-300 text-[10px]">${r.comment}</p>
-                        `;
-                        reviewsContainer.appendChild(item);
-                    });
-                }
-            } catch (err) {
-                reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Opiniones locales del destino.</p>`;
-            }
-        }
-
-        async function submitReview() {
-            if (!selectedPlace) return;
-            const comment = document.getElementById('review-comment').value.trim();
-            if (!comment) { alert("Escribe un comentario."); return; }
-
-            if (authToken) {
-                try {
-                    await fetch(`${API_URL}/reviews`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                        body: JSON.stringify({ place_name: selectedPlace.name, rating: selectedRating, comment: comment })
-                    });
-                } catch (e) { console.log(e); }
-            }
-
-            const reviewsContainer = document.getElementById('reviews-list');
-            const starsHtml = '★'.repeat(selectedRating) + '☆'.repeat(5 - selectedRating);
-            const item = document.createElement('div');
-            item.className = "p-2 bg-slate-900 border border-slate-800 rounded-lg text-[11px]";
-            item.innerHTML = `
-                <div class="flex justify-between items-center mb-1">
-                    <span class="font-bold text-amber-400">Tú (Ahora)</span>
-                    <span class="text-amber-500 text-[10px]">${starsHtml}</span>
-                </div>
-                <p class="text-slate-300 text-[10px]">${comment}</p>
-            `;
-            reviewsContainer.prepend(item);
-            document.getElementById('review-comment').value = '';
-            alert("¡Reseña publicada!");
-        }
-
-        // GEOCODIFICACIÓN (NOMINATIM) Y CLIMA (OPEN-METEO)
-        function searchOriginNominatim(e) { if (e.key === 'Enter') triggerOriginSearch(); }
-
-        async function triggerOriginSearch() {
-            const query = document.getElementById('origin-search').value;
-            if (!query) return;
-
-            document.getElementById('origin-status').innerText = "Buscando ubicación...";
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ", Colombia")}`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data && data.length > 0) {
-                    const firstMatch = data[0];
-                    currentOrigin = {
-                        lat: parseFloat(firstMatch.lat),
-                        lng: parseFloat(firstMatch.lon),
-                        name: firstMatch.display_name.split(',')[0]
-                    };
-
-                    document.getElementById('origin-status').innerText = `Origen: ${currentOrigin.name}`;
-
-                    if (originMarker) {
-                        originMarker.setLatLng([currentOrigin.lat, currentOrigin.lng]);
-                        originMarker.getPopup().setContent(`<b>Tu Ubicación Actual</b><br>${currentOrigin.name}`);
-                    }
-
-                    map.setView([currentOrigin.lat, currentOrigin.lng], 8);
-                    if (selectedPlace) { calculateRoute(selectedPlace); }
-                } else {
-                    document.getElementById('origin-status').innerText = "Ubicación no encontrada.";
-                }
-            } catch (err) { console.error("Error Nominatim:", err); }
-        }
-
-        async function fetchWeather(lat, lng) {
-            const weatherCard = document.getElementById('weather-card');
-            weatherCard.classList.remove('hidden');
-
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&hourly=precipitation_probability`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data && data.current_weather) {
-                    const temp = Math.round(data.current_weather.temperature);
-                    const code = data.current_weather.weathercode;
-                    const rainProb = data.hourly?.precipitation_probability?.[0] || 10;
-
-                    document.getElementById('weather-temp').innerText = `${temp}°C`;
-                    document.getElementById('weather-rain').innerText = `${rainProb}%`;
-
-                    let desc = "Despejado";
-                    if (code >= 1 && code <= 3) desc = "Parcialmente nublado";
-                    if (code >= 45 && code <= 48) desc = "Niebla";
-                    if (code >= 51 && code <= 67) desc = "Lluvia ligera";
-                    if (code >= 80 && code <= 99) desc = "Tormenta";
-
-                    document.getElementById('weather-desc').innerText = desc;
-                }
-            } catch (err) { console.error("Error Open-Meteo:", err); }
-        }
-
-        // CÁLCULO DE RUTA CON OSRM
-        async function calculateRoute(place) {
-            selectedPlace = place;
-            const routeInfo = document.getElementById('route-info');
-            routeInfo.classList.remove('hidden');
-
-            fetchWeather(place.lat, place.lng);
-            loadReviews(place.name);
-
-            // Mostrar Dato Curioso
-            const funFactCard = document.getElementById('fun-fact-card');
-            const funFactText = document.getElementById('fun-fact-text');
-            if (place.funFact) {
-                funFactText.innerText = place.funFact;
-                funFactCard.classList.remove('hidden');
-            } else {
-                funFactCard.classList.add('hidden');
-            }
-
-            document.getElementById('route-dest-name').innerText = place.name;
-            document.getElementById('route-distance').innerText = "Calculando...";
-            document.getElementById('route-time').innerText = "Consultando OSRM...";
-
-            const osrmProfile = currentTransport === 'foot' ? 'foot' : 'driving';
-            const url = `https://router.project-osrm.org/route/v1/${osrmProfile}/${currentOrigin.lng},${currentOrigin.lat};${place.lng},${place.lat}?overview=full&geometries=geojson`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.code === 'Ok' && data.routes.length > 0) {
-                    const route = data.routes[0];
-                    const distanceKm = (route.distance / 1000).toFixed(1);
-                    
-                    let durationSeconds = route.duration;
-                    if (currentTransport === 'bus') durationSeconds *= 1.3;
-
-                    const hours = Math.floor(durationSeconds / 3600);
-                    const minutes = Math.round((durationSeconds % 3600) / 60);
-                    let timeString = hours > 0 ? `${hours}h ${minutes}m` : `${minutes} min`;
-
-                    document.getElementById('route-distance').innerText = `${distanceKm} km`;
-                    document.getElementById('route-time').innerText = timeString;
-
-                    let transportText = "Vía trazada por red vial principal.";
-                    if (currentTransport === 'bus') transportText = place.busInfo;
-                    if (currentTransport === 'foot') transportText = "Sendero peatonal / caminata.";
-
-                    document.getElementById('route-transport-info').innerHTML = `<i class="fa-solid fa-circle-info mr-1"></i> ${transportText}`;
-
-                    const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
-
-                    if (currentPolyline) { map.removeLayer(currentPolyline); }
-
-                    currentPolyline = L.polyline(coordinates, {
-                        color: '#f59e0b',
-                        weight: 5,
-                        opacity: 0.9,
-                        dashArray: currentTransport === 'foot' ? '6, 8' : null
-                    }).addTo(map);
-
-                    map.fitBounds(currentPolyline.getBounds(), { padding: [50, 50] });
-                }
-            } catch (error) { console.error("Error OSRM:", error); }
-        }
-
-        // FILTROS Y RENDERIZADO
-        function filterCategory(cat) {
-            currentCategory = cat;
-            const buttons = document.querySelectorAll('.cat-btn');
-            buttons.forEach(b => {
-                if (b.innerText.includes(cat) || (cat === 'All' && b.innerText === 'Todos') || (cat === 'Favs' && b.innerText.includes('Favoritos'))) {
-                    b.className = "cat-btn px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px] cursor-pointer";
-                } else {
-                    b.className = "cat-btn px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[11px] hover:text-white cursor-pointer";
-                }
-            });
-            renderPlacesList();
-        }
-
-        function filterPlaces() { renderPlacesList(); }
-
-        function renderPlacesList() {
-            const listContainer = document.getElementById('places-list');
-            const searchVal = document.getElementById('search-input').value.toLowerCase();
-            listContainer.innerHTML = '';
-
-            const filtered = touristPlaces.filter(p => {
-                const isFav = favoritesList.includes(p.name);
-                const matchesCat = currentCategory === 'All' || (currentCategory === 'Favs' && isFav) || p.category === currentCategory;
-                const matchesSearch = p.name.toLowerCase().includes(searchVal) || p.desc.toLowerCase().includes(searchVal);
-                return matchesCat && matchesSearch;
-            });
-
-            if (filtered.length === 0) {
-                listContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No se encontraron destinos.</p>`;
-                return;
-            }
-
-            filtered.forEach(place => {
-                const isFav = favoritesList.includes(place.name);
-                const heartClass = isFav ? "fa-solid fa-heart text-red-500" : "fa-regular fa-heart text-slate-400 hover:text-red-400";
-
-                const item = document.createElement('div');
-                item.className = "p-2.5 bg-slate-950/90 hover:bg-slate-800/90 border border-slate-800/80 rounded-xl cursor-pointer transition-all flex gap-3 items-center";
-                item.onclick = () => calculateRoute(place);
-                item.innerHTML = `
-                    <img src="${place.img}" alt="${place.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0 border border-slate-800">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-start mb-0.5">
-                            <h3 class="font-bold text-xs text-white truncate">${place.name}</h3>
-                            <button onclick="toggleFavorite(event, '${place.name}')" class="p-1 text-xs cursor-pointer">
-                                <i class="${heartClass}"></i>
-                            </button>
-                        </div>
-                        <span class="text-[9px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded font-semibold inline-block mb-1">${place.category}</span>
-                        <p class="text-[10px] text-slate-400 line-clamp-2">${place.desc}</p>
-                    </div>
+        // FUNCIONES DE REGISTRO DE VISITANTES Y DASHBOARD
+        function renderVisitorsTable() {
+            const tableBody = document.getElementById('visitors-table-body');
+            tableBody.innerHTML = '';
+            visitorData.forEach(v => {
+                const badgeColor = v.status === 'Activo' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-800 text-slate-400 border-slate-700';
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-800/40 transition-colors";
+                row.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-amber-400">${v.id}</td>
+                    <td class="p-3">${v.origin}</td>
+                    <td class="p-3 font-semibold text-white">${v.destination}</td>
+                    <td class="p-3">${v.transport}</td>
+                    <td class="p-3 text-slate-400">${v.time}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeColor}">${v.status}</span></td>
                 `;
-                listContainer.appendChild(item);
+                tableBody.appendChild(row);
             });
         }
 
-        function initMap() {
-            if (!map) {
-                map = L.map('map').setView([4.8500, -73.9500], 6);
-
-                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; OpenStreetMap'
-                }).addTo(map);
-
-                originMarker = L.marker([currentOrigin.lat, currentOrigin.lng]).addTo(map)
-                    .bindPopup(`<b>Tu Ubicación Actual</b><br>${currentOrigin.name}`);
-
-                touristPlaces.forEach((place, idx) => {
-                    const marker = L.marker([place.lat, place.lng]).addTo(map);
-                    marker.bindPopup(`
-                        <div style="color: #0f172a; font-family: sans-serif; max-width: 200px;">
-                            <img src="${place.img}" style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 6px;">
-                            <b style="font-size: 13px; color: #d97706;">${place.name}</b><br>
-                            <span style="font-size: 10px; background-color: #fef3c7; color: #92400e; padding: 2px 5px; border-radius: 4px; font-weight: bold;">${place.category}</span>
-                            <p style="font-size: 11px; margin-top: 4px; color: #334155;">${place.desc}</p>
-                            <button onclick="calculateRoute(touristPlaces[${idx}])" style="background-color: #f59e0b; color: #020617; border: none; padding: 5px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px; width: 100%; font-size: 11px;">Ver Ruta y Clima</button>
-                        </div>
-                    `);
-                });
-            }
-            setTimeout(() => { map.invalidateSize(); }, 300);
+        function exportVisitorsCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,ID,Origen,Destino,Transporte,Hora,Estado\n";
+            visitorData.forEach(v => {
+                csvContent += `${v.id},"${v.origin}","${v.destination}",${v.transport},${v.time},${v.status}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "registro_visitantes_turismo_inteligente.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        // FUNCIONES DE DASHBOARD ANALÍTICO (ADMIN)
         function openAdminDashboard() {
             document.getElementById('dashboard-modal').classList.remove('hidden');
             initPreferencesChart();
+            renderVisitorsTable();
         }
 
         function closeAdminDashboard() {
@@ -910,53 +514,217 @@
             }
         }
 
-        // AUTENTICACIÓN
-        function switchAuthTab(tab) {
-            const formLogin = document.getElementById('form-login');
-            const formRegister = document.getElementById('form-register');
-            const tabLogin = document.getElementById('tab-login');
-            const tabRegister = document.getElementById('tab-register');
-            const tabAdmin = document.getElementById('tab-admin');
-            const btnSubmit = document.getElementById('btn-login-submit');
+        // OTRAMENTE RESTO DE FUNCIONALIDAD
+        function toggleFavorite(event, placeName) {
+            event.stopPropagation();
+            if (favoritesList.includes(placeName)) favoritesList = favoritesList.filter(name => name !== placeName);
+            else favoritesList.push(placeName);
+            localStorage.setItem('fav_places', JSON.stringify(favoritesList));
+            renderPlacesList();
+        }
 
-            [tabLogin, tabRegister, tabAdmin].forEach(t => {
-                t.className = "flex-1 pb-3 border-b-2 border-transparent text-slate-400 hover:text-white cursor-pointer";
+        function setRating(stars) {
+            selectedRating = stars;
+            document.querySelectorAll('#star-selector i').forEach((icon, idx) => {
+                if (idx < stars) icon.classList.add('active');
+                else icon.classList.remove('active');
+            });
+        }
+
+        async function loadReviews(placeName) {
+            const reviewsContainer = document.getElementById('reviews-list');
+            document.getElementById('reviews-section').classList.remove('hidden');
+            reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Cargando opiniones...</p>`;
+
+            try {
+                const response = await fetch(`${API_URL}/reviews/${encodeURIComponent(placeName)}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.length === 0) {
+                        reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Aún no hay opiniones.</p>`;
+                        return;
+                    }
+                    reviewsContainer.innerHTML = '';
+                    data.forEach(r => {
+                        const starsHtml = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                        const item = document.createElement('div');
+                        item.className = "p-2 bg-slate-900 border border-slate-800 rounded-lg text-[11px]";
+                        item.innerHTML = `
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-amber-400">${r.user_name || 'Usuario'}</span>
+                                <span class="text-amber-500 text-[10px]">${starsHtml}</span>
+                            </div>
+                            <p class="text-slate-300 text-[10px]">${r.comment}</p>
+                        `;
+                        reviewsContainer.appendChild(item);
+                    });
+                }
+            } catch (err) {
+                reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Opiniones del sitio.</p>`;
+            }
+        }
+
+        async function submitReview() {
+            if (!selectedPlace) return;
+            const comment = document.getElementById('review-comment').value.trim();
+            if (!comment) { alert("Escribe un comentario."); return; }
+
+            const reviewsContainer = document.getElementById('reviews-list');
+            const starsHtml = '★'.repeat(selectedRating) + '☆'.repeat(5 - selectedRating);
+            const item = document.createElement('div');
+            item.className = "p-2 bg-slate-900 border border-slate-800 rounded-lg text-[11px]";
+            item.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <span class="font-bold text-amber-400">Tú (Ahora)</span>
+                    <span class="text-amber-500 text-[10px]">${starsHtml}</span>
+                </div>
+                <p class="text-slate-300 text-[10px]">${comment}</p>
+            `;
+            reviewsContainer.prepend(item);
+            document.getElementById('review-comment').value = '';
+            alert("¡Reseña publicada!");
+        }
+
+        function searchOriginNominatim(e) { if (e.key === 'Enter') triggerOriginSearch(); }
+
+        async function triggerOriginSearch() {
+            const query = document.getElementById('origin-search').value;
+            if (!query) return;
+
+            document.getElementById('origin-status').innerText = "Buscando ubicación...";
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ", Colombia")}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    const firstMatch = data[0];
+                    currentOrigin = { lat: parseFloat(firstMatch.lat), lng: parseFloat(firstMatch.lon), name: firstMatch.display_name.split(',')[0] };
+                    document.getElementById('origin-status').innerText = `Origen: ${currentOrigin.name}`;
+                    if (originMarker) originMarker.setLatLng([currentOrigin.lat, currentOrigin.lng]);
+                    map.setView([currentOrigin.lat, currentOrigin.lng], 8);
+                    if (selectedPlace) calculateRoute(selectedPlace);
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function fetchWeather(lat, lng) {
+            const weatherCard = document.getElementById('weather-card');
+            weatherCard.classList.remove('hidden');
+
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&hourly=precipitation_probability`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data && data.current_weather) {
+                    const temp = Math.round(data.current_weather.temperature);
+                    const rainProb = data.hourly?.precipitation_probability?.[0] || 10;
+                    document.getElementById('weather-temp').innerText = `${temp}°C`;
+                    document.getElementById('weather-rain').innerText = `${rainProb}%`;
+                    document.getElementById('weather-desc').innerText = "Parcialmente nublado";
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function calculateRoute(place) {
+            selectedPlace = place;
+            document.getElementById('route-info').classList.remove('hidden');
+            fetchWeather(place.lat, place.lng);
+            loadReviews(place.name);
+
+            document.getElementById('fun-fact-card').classList.remove('hidden');
+            document.getElementById('fun-fact-text').innerText = place.funFact;
+            document.getElementById('route-dest-name').innerText = place.name;
+
+            const url = `https://router.project-osrm.org/route/v1/driving/${currentOrigin.lng},${currentOrigin.lat};${place.lng},${place.lat}?overview=full&geometries=geojson`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.routes && data.routes.length > 0) {
+                    const route = data.routes[0];
+                    document.getElementById('route-distance').innerText = `${(route.distance / 1000).toFixed(1)} km`;
+                    document.getElementById('route-time').innerText = `${Math.round(route.duration / 60)} min`;
+                    document.getElementById('route-transport-info').innerHTML = `<i class="fa-solid fa-circle-info mr-1"></i> ${place.busInfo}`;
+
+                    const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+                    if (currentPolyline) map.removeLayer(currentPolyline);
+                    currentPolyline = L.polyline(coordinates, { color: '#f59e0b', weight: 5 }).addTo(map);
+                    map.fitBounds(currentPolyline.getBounds(), { padding: [50, 50] });
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        function filterCategory(cat) { currentCategory = cat; renderPlacesList(); }
+        function filterPlaces() { renderPlacesList(); }
+
+        function renderPlacesList() {
+            const listContainer = document.getElementById('places-list');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            listContainer.innerHTML = '';
+
+            const filtered = touristPlaces.filter(p => {
+                const isFav = favoritesList.includes(p.name);
+                const matchesCat = currentCategory === 'All' || (currentCategory === 'Favs' && isFav) || p.category === currentCategory;
+                const matchesSearch = p.name.toLowerCase().includes(searchVal) || p.desc.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
             });
 
-            if (tab === 'login') {
-                currentRole = 'user';
-                formLogin.classList.remove('hidden');
-                formRegister.classList.add('hidden');
-                tabLogin.className = "flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold cursor-pointer";
-                btnSubmit.innerText = "Ingresar a la Plataforma →";
-            } else if (tab === 'register') {
-                formLogin.classList.add('hidden');
-                formRegister.classList.remove('hidden');
-                tabRegister.className = "flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold cursor-pointer";
-            } else if (tab === 'admin') {
-                currentRole = 'admin';
-                formLogin.classList.remove('hidden');
-                formRegister.classList.add('hidden');
-                tabAdmin.className = "flex-1 pb-3 border-b-2 border-amber-500 text-amber-500 font-semibold cursor-pointer";
-                btnSubmit.innerText = "Ingresar como Administrador →";
+            filtered.forEach(place => {
+                const isFav = favoritesList.includes(place.name);
+                const heartClass = isFav ? "fa-solid fa-heart text-red-500" : "fa-regular fa-heart text-slate-400 hover:text-red-400";
+
+                const item = document.createElement('div');
+                item.className = "p-2.5 bg-slate-950/90 hover:bg-slate-800/90 border border-slate-800/80 rounded-xl cursor-pointer transition-all flex gap-3 items-center";
+                item.onclick = () => calculateRoute(place);
+                item.innerHTML = `
+                    <img src="${place.img}" alt="${place.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0 border border-slate-800">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start mb-0.5">
+                            <h3 class="font-bold text-xs text-white truncate">${place.name}</h3>
+                            <button onclick="toggleFavorite(event, '${place.name}')" class="p-1 text-xs cursor-pointer">
+                                <i class="${heartClass}"></i>
+                            </button>
+                        </div>
+                        <span class="text-[9px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded font-semibold inline-block mb-1">${place.category}</span>
+                        <p class="text-[10px] text-slate-400 line-clamp-2">${place.desc}</p>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([4.8500, -73.9500], 6);
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                originMarker = L.marker([currentOrigin.lat, currentOrigin.lng]).addTo(map);
+
+                touristPlaces.forEach((place, idx) => {
+                    const marker = L.marker([place.lat, place.lng]).addTo(map);
+                    marker.bindPopup(`
+                        <div style="color: #0f172a; font-family: sans-serif; max-width: 200px;">
+                            <img src="${place.img}" style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 6px;">
+                            <b style="font-size: 13px; color: #d97706;">${place.name}</b><br>
+                            <span style="font-size: 10px; background-color: #fef3c7; color: #92400e; padding: 2px 5px; border-radius: 4px; font-weight: bold;">${place.category}</span>
+                            <button onclick="calculateRoute(touristPlaces[${idx}])" style="background-color: #f59e0b; color: #020617; border: none; padding: 5px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px; width: 100%; font-size: 11px;">Ver Ruta y Clima</button>
+                        </div>
+                    `);
+                });
             }
+        }
+
+        function switchAuthTab(tab) {
+            currentRole = tab === 'admin' ? 'admin' : 'user';
         }
 
         function setTransport(type) {
             currentTransport = type;
-            const btnCar = document.getElementById('btn-car');
-            const btnBus = document.getElementById('btn-bus');
-            const btnWalk = document.getElementById('btn-walk');
-
-            [btnCar, btnBus, btnWalk].forEach(b => {
-                b.className = "py-2 bg-slate-800 text-slate-400 font-semibold rounded-xl text-xs flex flex-col items-center gap-1 hover:text-white cursor-pointer transition-all";
-            });
-
-            if (type === 'driving') btnCar.className = "py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs flex flex-col items-center gap-1 cursor-pointer transition-all";
-            if (type === 'bus') btnBus.className = "py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs flex flex-col items-center gap-1 cursor-pointer transition-all";
-            if (type === 'foot') btnWalk.className = "py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs flex flex-col items-center gap-1 cursor-pointer transition-all";
-
-            if (selectedPlace) { calculateRoute(selectedPlace); }
+            if (selectedPlace) calculateRoute(selectedPlace);
         }
 
         function launchApp(roleName, userEmail) {
@@ -965,8 +733,7 @@
             document.getElementById('app-nav').classList.add('flex');
             document.getElementById('side-panel').classList.remove('hidden');
             
-            const badge = document.getElementById('user-badge');
-            badge.innerHTML = `<i class="fa-solid fa-user-circle mr-1"></i> ${roleName}: ${userEmail || ''}`;
+            document.getElementById('user-badge').innerHTML = `<i class="fa-solid fa-user-circle mr-1"></i> ${roleName}: ${userEmail || ''}`;
             
             if (currentRole === 'admin' || roleName.includes('Admin')) {
                 document.getElementById('admin-dashboard-btn').classList.remove('hidden');
@@ -976,7 +743,6 @@
 
             initMap();
             renderPlacesList();
-            setRating(5);
         }
 
         function handleLogin(event) {
@@ -985,14 +751,7 @@
             launchApp(currentRole === 'admin' ? 'Administrador' : 'Usuario', email);
         }
 
-        function handleRegister(event) {
-            event.preventDefault();
-            alert("¡Usuario registrado con éxito!");
-            switchAuthTab('login');
-        }
-
         function loginAsGuest() { launchApp('Modo Invitado', 'Invitado'); }
-
         function logout() { location.reload(); }
     </script>
 </body>
