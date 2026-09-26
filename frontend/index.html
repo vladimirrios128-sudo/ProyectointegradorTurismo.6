@@ -6,6 +6,8 @@
     <title>Turismo Inteligente - Colombia</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para gráficas de métricas del Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Leaflet.js CSS y JS para mapas -->
@@ -28,6 +30,11 @@
             <h1 class="text-lg font-bold text-white">Turismo Inteligente - Colombia</h1>
         </div>
         <div class="flex items-center gap-4">
+            <!-- Botón exclusivo para abrir el Dashboard Analítico del Admin -->
+            <button id="admin-dashboard-btn" onclick="openAdminDashboard()" class="hidden text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-amber-500/20">
+                <i class="fa-solid fa-chart-line"></i> Dashboard Analítico
+            </button>
+
             <span id="user-badge" class="bg-slate-800 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-700">
                 <i class="fa-solid fa-user-circle mr-1"></i> Modo Invitado
             </span>
@@ -46,7 +53,7 @@
                 <i class="fa-solid fa-location-crosshairs text-amber-500"></i> Tu Ubicación (Origen)
             </label>
             <div class="relative">
-                <input type="text" id="origin-search" onkeyup="searchOriginNominatim(event)" placeholder="Ej: Bogotá, Pasto, Sogamoso, Tunja..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-amber-500">
+                <input type="text" id="origin-search" onkeyup="searchOriginNominatim(event)" placeholder="Ej: Bogotá, Güicán, Manizales, Sogamoso..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-amber-500">
                 <button type="button" onclick="triggerOriginSearch()" class="absolute right-2 top-2 text-amber-500 hover:text-amber-400 text-xs cursor-pointer">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
@@ -59,7 +66,7 @@
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
                 <i class="fa-solid fa-filter text-amber-500"></i> Filtrar Destinos
             </label>
-            <input type="text" id="search-input" onkeyup="filterPlaces()" placeholder="Buscar destino (Ej: Tota, Susa, Pasto...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs mb-2 focus:outline-none focus:border-amber-500">
+            <input type="text" id="search-input" onkeyup="filterPlaces()" placeholder="Buscar destino (Ej: Cocuy, Ruiz, Tota...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs mb-2 focus:outline-none focus:border-amber-500">
             
             <div class="flex flex-wrap gap-1">
                 <button type="button" onclick="filterCategory('All')" class="cat-btn px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px] cursor-pointer">Todos</button>
@@ -164,6 +171,125 @@
     <!-- Contenedor del Mapa -->
     <div id="map" class="z-10"></div>
 
+    <!-- MODAL DASHBOARD ANALÍTICO (PANTALLA 4: COMERCIOS Y ADMINISTRADOR) -->
+    <div id="dashboard-modal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 overflow-y-auto p-6">
+        <div class="max-w-7xl mx-auto space-y-6">
+            
+            <!-- HEADER DEL DASHBOARD CON SELECTOR DE TEMPORADA -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900 border border-slate-800 p-5 rounded-2xl gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="p-2 bg-amber-500/10 text-amber-400 rounded-lg"><i class="fa-solid fa-chart-line text-xl"></i></span>
+                        <h2 class="text-2xl font-extrabold text-white">4. TABLERO DE ANÁLISIS GLOBAL</h2>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Flujos estadísticos anonimizados en tiempo real y telemetría del servidor.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <label class="text-xs font-semibold uppercase text-slate-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-days text-amber-500"></i> Temporada:
+                    </label>
+                    <select id="season-selector" onchange="updateDashboardData()" class="bg-slate-950 border border-slate-800 text-amber-400 text-xs font-bold rounded-xl px-4 py-2 focus:outline-none focus:border-amber-500">
+                        <option value="Alta">Temporada Alta</option>
+                        <option value="Media" selected>Temporada Media</option>
+                        <option value="Baja">Temporada Baja</option>
+                    </select>
+                    <button onclick="closeAdminDashboard()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all cursor-pointer">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TARJETAS DE MÉTRICAS (KPIs) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Visitantes Actuales</span>
+                        <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">+14% en vivo</span>
+                    </div>
+                    <p id="kpi-visitors" class="text-3xl font-black text-white">1,250</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Conexiones simultáneas anonimizadas</p>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Zonas más Concurridas</span>
+                        <span class="text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-bold">Alta Afluencia</span>
+                    </div>
+                    <p id="kpi-zones" class="text-3xl font-black text-amber-400">5 Puntos</p>
+                    <p class="text-[11px] text-slate-500 mt-1">El Cocuy, Ruiz, Tota, Guatapé, Monserrate</p>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Duración Promedio de Ruta</span>
+                        <span class="text-xs bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-bold">OSRM Validado</span>
+                    </div>
+                    <p id="kpi-duration" class="text-3xl font-black text-white">3.5h</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Tiempo en carretera promedio por turista</p>
+                </div>
+            </div>
+
+            <!-- BARRAS HORIZONTALES Y MONITOREO TÉCNICO ADMIN -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                    <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-bar text-amber-500"></i> Preferencias Principales de Turistas
+                    </h3>
+                    <div class="h-64">
+                        <canvas id="preferencesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-amber-500/30 p-5 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+                        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-server"></i> Vista Exclusiva Admin (Monitoreo de Servidor)
+                        </h3>
+                        <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-mono font-bold">Docker Node #1</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                            <span class="text-[11px] text-slate-400 block mb-1">Consumo de CPU</span>
+                            <p id="gauge-cpu" class="text-xl font-mono font-bold text-emerald-400">28.4 %</p>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div id="bar-cpu" class="bg-emerald-500 h-full w-[28%]"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                            <span class="text-[11px] text-slate-400 block mb-1">Memoria RAM</span>
+                            <p id="gauge-ram" class="text-xl font-mono font-bold text-amber-400">62.1 %</p>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div id="bar-ram" class="bg-amber-500 h-full w-[62%]"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                            <span class="text-[11px] text-slate-400 block mb-1">Almacenamiento Distribuido</span>
+                            <p id="gauge-storage" class="text-xl font-mono font-bold text-blue-400">41.8 %</p>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div id="bar-storage" class="bg-blue-500 h-full w-[41%]"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                            <span class="text-[11px] text-slate-400 block mb-1">Latencia de Red (API)</span>
+                            <p id="gauge-latency" class="text-xl font-mono font-bold text-emerald-400">18 ms</p>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div id="bar-latency" class="bg-emerald-500 h-full w-[18%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 text-center mt-4"><i class="fa-solid fa-shield-halved text-amber-500 mr-1"></i> Telemetría cifrada y sincronizada con FastAPI + SQLite3.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
     <!-- Modal de Autenticación -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-950 flex items-center justify-center z-50 p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
@@ -233,125 +359,192 @@
         let selectedPlace = null;
         let originMarker = null;
         let selectedRating = 5;
+        let preferencesChart = null;
 
         let favoritesList = JSON.parse(localStorage.getItem('fav_places') || '[]');
         let currentOrigin = { lat: 4.5981, lng: -74.0758, name: "Bogotá - Centro" };
 
-        // LISTA DE DESTINOS CON DATOS CURIOSOS
+        // LISTA DE 16 DESTINOS DE COLOMBIA
         const touristPlaces = [
             { 
                 id: 1, 
-                name: "Rocas de Suesca", 
-                lat: 5.1053, 
-                lng: -73.8011, 
-                desc: "Escalada deportiva y farallones rocosos icónicos.", 
+                name: "Parque Nacional Natural El Cocuy", 
+                lat: 6.4000, 
+                lng: -72.3000, 
+                desc: "La masa glaciar más grande de Colombia con más de 25 picos nevados.", 
                 category: "Aventura", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Rocas_de_Suesca.JPG", 
-                busInfo: "Flotas Alianza desde Portal Norte (~$12.000 COP)",
-                funFact: "Es considerada la cuna de la escalada en roca en Colombia; sus farallones de arenisca tienen más de 300 rutas de escalada trazadas desde la década de 1930."
+                img: "https://upload.wikimedia.org/wikipedia/commons/e/e3/PNN_El_Cocuy.jpg", 
+                busInfo: "Buses a El Cocuy (~$70.000 COP)",
+                funFact: "Posee la masa continua de nieve e hielo más grande de los Andes septentrionales."
             },
             { 
                 id: 2, 
+                name: "Parque Nacional Natural Los Nevados (Ruiz)", 
+                lat: 4.8920, 
+                lng: -75.3188, 
+                desc: "Estratovolcán nevado y ecosistemas de páramo.", 
+                category: "Naturaleza", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Nevado_del_Ruiz_volcano.jpg", 
+                busInfo: "Tours autorizados desde Manizales",
+                funFact: "Sus frailejones crecen solo 1 cm por año."
+            },
+            { 
+                id: 3, 
                 name: "Laguna de Tota", 
                 lat: 5.5458, 
                 lng: -72.9213, 
                 desc: "El lago más grande de Colombia con su famosa Playa Blanca a 3.015 msnm.", 
                 category: "Naturaleza", 
                 img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Laguna_de_tota-_Boyac%C3%A1_Colombia.jpg", 
-                busInfo: "Buses desde Sogamoso / Aquitania (~$8.000 COP)",
-                funFact: "Alberga la playa de agua dulce a mayor altitud de América del Sur y la tercera más alta del mundo."
-            },
-            { 
-                id: 3, 
-                name: "Piedra Colgada de Susa", 
-                lat: 5.4521, 
-                lng: -73.8114, 
-                desc: "Imponente formación rocosa y mirador panorámico sobre el valle de Ubaté.", 
-                category: "Aventura", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Susa_Cundinamarca.jpg", 
-                busInfo: "Buses hacia Ubaté / Susa desde Portal Norte",
-                funFact: "Es una enorme roca de arenisca que sobresale en el abismo dando la ilusión óptica de estar flotando en el aire sobre el valle de Ubaté."
+                busInfo: "Buses desde Sogamoso (~$8.000 COP)",
+                funFact: "Alberga la playa de agua dulce a mayor altitud de América del Sur."
             },
             { 
                 id: 4, 
-                name: "Laguna de la Cocha (Pasto)", 
-                lat: 1.1550, 
-                lng: -77.1500, 
-                desc: "Embalse natural de origen glaciar en Nariño con su mística Isla La Corota.", 
-                category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Laguna_de_la_Cocha_-_Nari%C3%B1o.jpg", 
-                busInfo: "Colectivo desde Pasto hasta El Encano (~$6.000 COP)",
-                funFact: "En su centro se encuentra la Isla La Corota, el Santuario de Flora y Fauna más pequeño de Colombia, considerado un centro energético por las comunidades indígenas ancestrales."
+                name: "Rocas de Suesca", 
+                lat: 5.1053, 
+                lng: -73.8011, 
+                desc: "Escalada deportiva y farallones rocosos icónicos.", 
+                category: "Aventura", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Rocas_de_Suesca.JPG", 
+                busInfo: "Flotas desde Portal Norte (~$12.000 COP)",
+                funFact: "Es considerada la cuna de la escalada en roca en Colombia."
             },
             { 
                 id: 5, 
-                name: "Catedral de Sal Zipaquirá", 
-                lat: 5.0189, 
-                lng: -74.0044, 
-                desc: "Santuario subterráneo esculpido en las minas de sal de Cundinamarca.", 
-                category: "Cultural", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Zipaquira_Salt_Cathedral_2016.jpg", 
-                busInfo: "Buses intermunicipales desde Portal Norte (~$8.000 COP)",
-                funFact: "Está construida a 180 metros bajo tierra dentro de una mina de sal y es considerada la Primera Maravilla de Colombia."
+                name: "Piedra del Peñol - Guatapé", 
+                lat: 6.2200, 
+                lng: -75.1798, 
+                desc: "Monolito gigante de 220 metros con vista panorámica a un embalse rodeado de zócalos de colores.", 
+                category: "Aventura", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/5/53/El_Pe%C3%B1ol_Guatape_Colombia.jpg", 
+                busInfo: "Buses desde la Terminal del Norte de Medellín",
+                funFact: "Tiene 740 escalones incrustados en su grieta principal."
             },
             { 
                 id: 6, 
-                name: "Laguna de Guatavita", 
-                lat: 4.9786, 
-                lng: -73.7744, 
-                desc: "Cuna sagrada de la Leyenda de El Dorado y senderismo ecológico.", 
+                name: "Cabo de la Vela", 
+                lat: 12.2071, 
+                lng: -72.1802, 
+                desc: "Encuentro mágico entre el desierto wayúu y el Mar Caribe.", 
                 category: "Naturaleza", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/8/86/Laguna_Guatavita_1.JPG", 
-                busInfo: "Flotas Valle de Tenza / Guatavita (~$14.000 COP)",
-                funFact: "Era el sitio sagrado donde el Zipa Muisca realizaba rituales cubierto en oro en polvo, origen de la famosa Leyenda de El Dorado."
+                img: "https://upload.wikimedia.org/wikipedia/commons/c/c2/Cabo_de_la_Vela%2C_La_Guajira.jpg", 
+                busInfo: "Camionetas 4x4 desde Uribia o Riohacha",
+                funFact: "Territorio sagrado donde las almas de la comunidad Wayúu viajan tras morir."
             },
             { 
                 id: 7, 
-                name: "Cerro de Monserrate", 
-                lat: 4.6058, 
-                lng: -74.0555, 
-                desc: "Santuario y mirador panorámico principal sobre la sabana de Bogotá.", 
-                category: "Histórico", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Monserrate_Bogota.jpg", 
-                busInfo: "TransMilenio Estación Las Aguas / Teleférico",
-                funFact: "Se encuentra a 3.152 msnm y la estatua del Señor Caído que alberga es famosa por sus leyendas de milagros y por 'crecerle el cabello' según la creencia popular."
+                name: "Nuquí - Chocó", 
+                lat: 5.7095, 
+                lng: -77.2667, 
+                desc: "Avistamiento de ballenas jorobadas y selva tropical frente al Pacífico.", 
+                category: "Naturaleza", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Nuqu%C3%AD_Choc%C3%B3_Colombia.jpg", 
+                busInfo: "Vuelo Charter desde Medellín",
+                funFact: "Recibe a miles de ballenas jorobadas que viajan desde la Antártida."
             },
             { 
                 id: 8, 
-                name: "Mirador de La Calera", 
-                lat: 4.6738, 
-                lng: -73.9723, 
-                desc: "Vistas nocturnas y diurnas de Bogotá acompañadas de oferta gastronómica.", 
-                category: "Mirador", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/2/27/La_Calera_Cundinamarca.jpg", 
-                busInfo: "Microbuses desde la Calle 72 con Carrera 13",
-                funFact: "Ofrece la mejor vista panorámica nocturna de Bogotá mientras se disfruta de la tradicional canelazo colombiano."
+                name: "Caño Cristales - Meta", 
+                lat: 2.2472, 
+                lng: -73.7847, 
+                desc: "El río de los cinco colores o el río más hermoso del mundo.", 
+                category: "Aventura", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Cano_Cristales_Macarena_Colombia.jpg", 
+                busInfo: "Vuelo a La Macarena + Canoa por el río",
+                funFact: "Sus colores los produce la planta acuática Macarenia clavigera."
             },
             { 
                 id: 9, 
-                name: "Ciudad Amurallada Cartagena", 
-                lat: 10.4236, 
-                lng: -75.5512, 
-                desc: "Patrimonio histórico de la humanidad con arquitectura colonial fortificada.", 
-                category: "Histórico", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cartagena_de_Indias_-_Ciudad_Amurallada.jpg", 
-                busInfo: "Vía terrestre por la Troncal del Caribe / Avión",
-                funFact: "Sus murallas tardaron más de 200 años en construirse para proteger las riquezas de la corona española de los ataques de piratas británicos y franceses."
+                name: "Puerto Nariño - Amazonas", 
+                lat: -3.7799, 
+                lng: -70.3640, 
+                desc: "Poblado ecológico en el Amazonas y delfines rosados.", 
+                category: "Naturaleza", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Puerto_Nari%C3%B1o_Amazonas.jpg", 
+                busInfo: "Lancha rápida desde Leticia (~$40.000 COP)",
+                funFact: "Municipio 100% peatonal sin vehículos a motor de combustión."
             },
             { 
                 id: 10, 
+                name: "Piedra Colgada de Susa", 
+                lat: 5.4521, 
+                lng: -73.8114, 
+                desc: "Imponente formación rocosa y mirador sobre el valle de Ubaté.", 
+                category: "Aventura", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Susa_Cundinamarca.jpg", 
+                busInfo: "Buses hacia Ubaté / Susa desde Portal Norte",
+                funFact: "Sobrepasa el abismo dando la ilusión óptica de estar flotando en el aire."
+            },
+            { 
+                id: 11, 
+                name: "Laguna de la Cocha (Pasto)", 
+                lat: 1.1550, 
+                lng: -77.1500, 
+                desc: "Embalse natural de origen glaciar con casitas estilo suizo en El Encano.", 
+                category: "Naturaleza", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Laguna_de_la_Cocha_-_Nari%C3%B1o.jpg", 
+                busInfo: "Colectivo desde Pasto hasta El Encano (~$6.000 COP)",
+                funFact: "Alberga la Isla La Corota, el Santuario de Flora más pequeño del país."
+            },
+            { 
+                id: 12, 
+                name: "Catedral de Sal Zipaquirá", 
+                lat: 5.0189, 
+                lng: -74.0044, 
+                desc: "Santuario subterráneo esculpido en sal.", 
+                category: "Cultural", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Zipaquira_Salt_Cathedral_2016.jpg", 
+                busInfo: "Buses intermunicipales desde Portal Norte",
+                funFact: "Primera Maravilla de Colombia a 180 metros bajo tierra."
+            },
+            { 
+                id: 13, 
+                name: "Laguna de Guatavita", 
+                lat: 4.9786, 
+                lng: -73.7744, 
+                desc: "Cuna sagrada de la Leyenda de El Dorado.", 
+                category: "Naturaleza", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/8/86/Laguna_Guatavita_1.JPG", 
+                busInfo: "Flotas Valle de Tenza / Guatavita",
+                funFact: "Sitio del ritual del Zipa Muisca bañado en oro en polvo."
+            },
+            { 
+                id: 14, 
+                name: "Cerro de Monserrate", 
+                lat: 4.6058, 
+                lng: -74.0555, 
+                desc: "Santuario y mirador panorámico sobre Bogotá.", 
+                category: "Histórico", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Monserrate_Bogota.jpg", 
+                busInfo: "TransMilenio Estación Las Aguas / Teleférico",
+                funFact: "Se encuentra a 3.152 msnm dominando la vista de la capital."
+            },
+            { 
+                id: 15, 
+                name: "Ciudad Amurallada Cartagena", 
+                lat: 10.4236, 
+                lng: -75.5512, 
+                desc: "Patrimonio histórico con arquitectura colonial fortificada.", 
+                category: "Histórico", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cartagena_de_Indias_-_Ciudad_Amurallada.jpg", 
+                busInfo: "Vía terrestre por la Troncal del Caribe / Avión",
+                funFact: "Murallas construidas durante más de 200 años contra piratas."
+            },
+            { 
+                id: 16, 
                 name: "Parque Nacional Tayrona", 
                 lat: 11.3000, 
                 lng: -74.0500, 
-                desc: "Encuentro caribeño entre la Sierra Nevada de Santa Marta y el mar.", 
+                desc: "Encuentro entre la Sierra Nevada de Santa Marta y el mar Caribe.", 
                 category: "Naturaleza", 
                 img: "https://upload.wikimedia.org/wikipedia/commons/3/36/Playa_Cabo_San_Juan_-_Tayrona.jpg", 
-                busInfo: "Buses desde Santa Marta hacia El Zaino (~$15.000 COP)",
-                funFact: "Es uno de los pocos lugares del planeta donde la montaña nevada más alta junto al mar (la Sierra Nevada de Santa Marta) se une directamente con las playas del Caribe."
+                busInfo: "Buses desde Santa Marta hacia El Zaino",
+                funFact: "Unión directa de nieve de la Sierra con las playas caribeñas."
             }
         ];
 
-        // MANEJO DE FAVORITOS
+        // FUNCIONES DE FAVORITOS
         function toggleFavorite(event, placeName) {
             event.stopPropagation();
             if (favoritesList.includes(placeName)) {
@@ -371,7 +564,7 @@
             }
         }
 
-        // SISTEMA DE RESEÑAS ⭐
+        // FUNCIONES DE RESEÑAS ⭐
         function setRating(stars) {
             selectedRating = stars;
             const icons = document.querySelectorAll('#star-selector i');
@@ -410,7 +603,7 @@
                     });
                 }
             } catch (err) {
-                reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Opiniones del sitio.</p>`;
+                reviewsContainer.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-1">Opiniones locales del destino.</p>`;
             }
         }
 
@@ -445,7 +638,7 @@
             alert("¡Reseña publicada!");
         }
 
-        // GEOCODIFICACIÓN Y CLIMA
+        // GEOCODIFICACIÓN (NOMINATIM) Y CLIMA (OPEN-METEO)
         function searchOriginNominatim(e) { if (e.key === 'Enter') triggerOriginSearch(); }
 
         async function triggerOriginSearch() {
@@ -511,6 +704,7 @@
             } catch (err) { console.error("Error Open-Meteo:", err); }
         }
 
+        // CÁLCULO DE RUTA CON OSRM
         async function calculateRoute(place) {
             selectedPlace = place;
             const routeInfo = document.getElementById('route-info');
@@ -576,6 +770,7 @@
             } catch (error) { console.error("Error OSRM:", error); }
         }
 
+        // FILTROS Y RENDERIZADO
         function filterCategory(cat) {
             currentCategory = cat;
             const buttons = document.querySelectorAll('.cat-btn');
@@ -660,6 +855,62 @@
             setTimeout(() => { map.invalidateSize(); }, 300);
         }
 
+        // FUNCIONES DE DASHBOARD ANALÍTICO (ADMIN)
+        function openAdminDashboard() {
+            document.getElementById('dashboard-modal').classList.remove('hidden');
+            initPreferencesChart();
+        }
+
+        function closeAdminDashboard() {
+            document.getElementById('dashboard-modal').classList.add('hidden');
+        }
+
+        function initPreferencesChart() {
+            const ctx = document.getElementById('preferencesChart').getContext('2d');
+            if (preferencesChart) preferencesChart.destroy();
+
+            preferencesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Naturaleza', 'Cultura', 'Gastronomía', 'Aventura', 'Alojamiento'],
+                    datasets: [{
+                        label: '% de Preferencia',
+                        data: [50, 30, 17, 15, 15],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { display: false }, ticks: { color: '#f8fafc' } }
+                    }
+                }
+            });
+        }
+
+        function updateDashboardData() {
+            const season = document.getElementById('season-selector').value;
+            if (season === 'Alta') {
+                document.getElementById('kpi-visitors').innerText = '2,840';
+                document.getElementById('kpi-zones').innerText = '8 Puntos';
+                document.getElementById('kpi-duration').innerText = '4.2h';
+            } else if (season === 'Media') {
+                document.getElementById('kpi-visitors').innerText = '1,250';
+                document.getElementById('kpi-zones').innerText = '5 Puntos';
+                document.getElementById('kpi-duration').innerText = '3.5h';
+            } else {
+                document.getElementById('kpi-visitors').innerText = '610';
+                document.getElementById('kpi-zones').innerText = '3 Puntos';
+                document.getElementById('kpi-duration').innerText = '2.1h';
+            }
+        }
+
+        // AUTENTICACIÓN
         function switchAuthTab(tab) {
             const formLogin = document.getElementById('form-login');
             const formRegister = document.getElementById('form-register');
@@ -717,6 +968,12 @@
             const badge = document.getElementById('user-badge');
             badge.innerHTML = `<i class="fa-solid fa-user-circle mr-1"></i> ${roleName}: ${userEmail || ''}`;
             
+            if (currentRole === 'admin' || roleName.includes('Admin')) {
+                document.getElementById('admin-dashboard-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('admin-dashboard-btn').classList.add('hidden');
+            }
+
             initMap();
             renderPlacesList();
             setRating(5);
@@ -725,7 +982,7 @@
         function handleLogin(event) {
             event.preventDefault();
             const email = document.getElementById('login-email').value;
-            launchApp('Usuario', email);
+            launchApp(currentRole === 'admin' ? 'Administrador' : 'Usuario', email);
         }
 
         function handleRegister(event) {
@@ -736,13 +993,7 @@
 
         function loginAsGuest() { launchApp('Modo Invitado', 'Invitado'); }
 
-        function logout() {
-            document.getElementById('auth-modal').classList.remove('hidden');
-            document.getElementById('app-nav').classList.add('hidden');
-            document.getElementById('app-nav').classList.remove('flex');
-            document.getElementById('side-panel').classList.add('hidden');
-            if (currentPolyline) map.removeLayer(currentPolyline);
-        }
+        function logout() { location.reload(); }
     </script>
 </body>
 </html>
