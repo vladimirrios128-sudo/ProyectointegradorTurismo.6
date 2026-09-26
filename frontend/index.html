@@ -178,7 +178,7 @@
     <!-- Contenedor del Mapa -->
     <div id="map" class="z-10"></div>
 
-    <!-- MODAL PANEL DE COMERCIO (ADMIN COMERCIO) -->
+    <!-- MODAL PANEL DE COMERCIO -->
     <div id="merchant-modal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 overflow-y-auto p-6">
         <div class="max-w-6xl mx-auto space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900 border border-slate-800 p-5 rounded-2xl gap-4">
@@ -188,7 +188,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-extrabold text-white">Suite de Gestión para Administradores de Comercio</h2>
-                        <p class="text-xs text-slate-400">Impulsa tu negocio local con analítica predictiva, cupones QR y ofertas geolocalizadas.</p>
+                        <p class="text-xs text-slate-400">Impulsa tu negocio local con fotos, publicidad, analítica predictiva, cupones QR y ofertas.</p>
                     </div>
                 </div>
                 <button onclick="closeMerchantPanel()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all cursor-pointer">
@@ -196,25 +196,29 @@
                 </button>
             </div>
 
+            <!-- NAVEGACIÓN INTERNA DEL PANEL DE COMERCIO -->
             <div class="flex border-b border-slate-800 text-xs font-semibold overflow-x-auto gap-2 pb-1">
                 <button onclick="switchMerchantTab('analytics')" id="mtab-analytics" class="px-4 py-2 bg-emerald-500 text-slate-950 font-bold rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-chart-line"></i> 1. Afluencia Predictiva
                 </button>
+                <button onclick="switchMerchantTab('media')" id="mtab-media" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-images"></i> 2. Fotos & Publicidad
+                </button>
                 <button onclick="switchMerchantTab('promo')" id="mtab-promo" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-bolt"></i> 2. Promociones Relámpago
+                    <i class="fa-solid fa-bolt"></i> 3. Promociones Relámpago
                 </button>
                 <button onclick="switchMerchantTab('coupons')" id="mtab-coupons" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-ticket"></i> 3. Cupones Canjeables
+                    <i class="fa-solid fa-ticket"></i> 4. Cupones Canjeables
                 </button>
                 <button onclick="switchMerchantTab('menu')" id="mtab-menu" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-qrcode"></i> 4. Menú & QR Digital
+                    <i class="fa-solid fa-qrcode"></i> 5. Menú & QR Digital
                 </button>
                 <button onclick="switchMerchantTab('whatsapp')" id="mtab-whatsapp" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
-                    <i class="fa-brands fa-whatsapp"></i> 5. Reservas por WhatsApp
+                    <i class="fa-brands fa-whatsapp"></i> 6. Reservas por WhatsApp
                 </button>
             </div>
 
-            <!-- SECCIONES DE COMERCIO -->
+            <!-- SECCIÓN 1: AFLUENCIA PREDICTIVA -->
             <div id="msec-analytics" class="space-y-5">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
@@ -231,11 +235,54 @@
                     </div>
                 </div>
                 <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                    <h3 class="text-sm font-bold text-white mb-3">Proyección de Turistas (Próximos 7 días)</h3>
+                    <h3 class="text-sm font-bold text-white mb-3">Proyección de Turistas buscando tu Destino (Próximos 7 días)</h3>
                     <div class="h-60"><canvas id="predictiveChart"></canvas></div>
                 </div>
             </div>
 
+            <!-- SECCIÓN 2: CARGA DE FOTOS Y BANNERS PUBLICITARIOS -->
+            <div id="msec-media" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-5">
+                <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Galería de Fotos y Banners Publicitarios
+                </h3>
+                <p class="text-xs text-slate-400">Publica fotografías de alta calidad de tu establecimiento, platos estrella o banners promocionales para destacar en la app.</p>
+
+                <form onsubmit="handleUploadMedia(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Título / Descripción de la Imagen</label>
+                            <input type="text" id="media-title" required placeholder="Ej: Fachada de nuestro local en Suesca" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Tipo de Imagen</label>
+                            <select id="media-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-emerald-400 font-bold">
+                                <option value="foto">Foto de Galería del Local</option>
+                                <option value="banner">Banner Publicitario Destacado</option>
+                                <option value="plato">Foto de Menú / Plato Especial</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">URL de la Imagen (o cargar archivo)</label>
+                        <input type="url" id="media-url" required placeholder="https://ejemplo.com/foto-mi-local.jpg" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer shadow-lg shadow-emerald-500/20">
+                        Publicar Foto / Banner en la Plataforma
+                    </button>
+                </form>
+
+                <div class="border-t border-slate-800 pt-4">
+                    <h4 class="text-xs font-bold text-white mb-3">Imágenes Publicadas Activas:</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="merchant-gallery-preview">
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-2 text-center">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Rocas_de_Suesca.JPG" class="w-full h-24 object-cover rounded-lg mb-2">
+                            <span class="text-[10px] font-bold text-amber-400">Banner Vista Suesca</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: PROMOCIONES RELÁMPAGO -->
             <div id="msec-promo" class="hidden space-y-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
                 <h3 class="text-sm font-bold text-emerald-400"><i class="fa-solid fa-bolt"></i> Lanzar Oferta Relámpago</h3>
                 <form onsubmit="handleCreatePromo(event)" class="space-y-4">
@@ -247,6 +294,7 @@
                 </form>
             </div>
 
+            <!-- SECCIÓN 4: REDENCIÓN DE CUPONES -->
             <div id="msec-coupons" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl">
                 <h3 class="text-sm font-bold text-white mb-3">Redimir Cupones de Caja</h3>
                 <div class="flex gap-2 mb-4">
@@ -255,6 +303,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN 5: MENÚ Y QR DIGITAL -->
             <div id="msec-menu" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <h3 class="text-sm font-bold text-emerald-400 mb-2">Generador de Código QR</h3>
@@ -267,6 +316,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN 6: WHATSAPP -->
             <div id="msec-whatsapp" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
                 <h3 class="text-sm font-bold text-emerald-400">Reservas Directas por WhatsApp</h3>
                 <input type="text" id="wa-number" value="+573101234567" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white">
@@ -275,18 +325,17 @@
         </div>
     </div>
 
-    <!-- MODAL DASHBOARD ANALÍTICO COMPLETO (PANTALLA 4: ADMINISTRADOR GLOBAL) -->
+    <!-- MODAL DASHBOARD ANALÍTICO COMPLETO (ADMIN GLOBAL) -->
     <div id="dashboard-modal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 overflow-y-auto p-6">
         <div class="max-w-7xl mx-auto space-y-6">
             
-            <!-- HEADER DE ADMINISTRADOR GLOBAL -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900 border border-slate-800 p-5 rounded-2xl gap-4">
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="p-2 bg-amber-500/10 text-amber-400 rounded-lg"><i class="fa-solid fa-chart-line text-xl"></i></span>
                         <h2 class="text-2xl font-extrabold text-white">4. TABLERO GLOBAL DE GOBERNANZA Y ANÁLISIS</h2>
                     </div>
-                    <p class="text-xs text-slate-400 mt-1">Supervisión integral de tráfico turístico, validación de comercios y alertas viales.</p>
+                    <p class="text-xs text-slate-400 mt-1">Supervisión integral de tráfico turístico, promociones de comercios, validación y alertas viales.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <label class="text-xs font-semibold uppercase text-slate-400 flex items-center gap-1.5">
@@ -303,227 +352,149 @@
                 </div>
             </div>
 
-            <!-- NAVEGACIÓN INTERNA PARA ADMIN GLOBAL -->
+            <!-- NAVEGACIÓN INTERNA ADMIN GLOBAL -->
             <div class="flex border-b border-slate-800 text-xs font-semibold overflow-x-auto gap-2 pb-1">
                 <button onclick="switchAdminGlobalTab('kpi')" id="gtab-kpi" class="px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-chart-pie"></i> Métricas & Telemetría
+                </button>
+                <button onclick="switchAdminGlobalTab('allpromos')" id="gtab-allpromos" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-tags text-amber-400"></i> Promociones de Comercios (NUEVO)
                 </button>
                 <button onclick="switchAdminGlobalTab('visitors')" id="gtab-visitors" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-users"></i> Registro de Visitantes
                 </button>
                 <button onclick="switchAdminGlobalTab('merchants')" id="gtab-merchants" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-building-circle-check"></i> Aprobar Comercios <span class="bg-amber-500/20 text-amber-400 px-1.5 py-0.2 rounded text-[10px]">2 Pendientes</span>
+                    <i class="fa-solid fa-building-circle-check"></i> Aprobar Comercios
                 </button>
                 <button onclick="switchAdminGlobalTab('alerts')" id="gtab-alerts" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-triangle-exclamation"></i> Emitir Alerta Vial / Clima
                 </button>
             </div>
 
-            <!-- SECCIÓN A: KPIS Y TELEMETRÍA DE SERVIDOR -->
+            <!-- SECCIÓN A: KPIS Y TELEMETRÍA -->
             <div id="gsec-kpi" class="space-y-6">
-                <!-- TARJETAS DE MÉTRICAS (KPIs) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-semibold text-slate-400 uppercase">Visitantes Actuales</span>
-                            <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">+14% en vivo</span>
-                        </div>
-                        <p id="kpi-visitors" class="text-3xl font-black text-white">1,250</p>
-                        <p class="text-[11px] text-slate-500 mt-1">Conexiones simultáneas anonimizadas</p>
-                    </div>
-
                     <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-semibold text-slate-400 uppercase">Zonas más Concurridas</span>
-                            <span class="text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-bold">Alta Afluencia</span>
-                        </div>
-                        <p id="kpi-zones" class="text-3xl font-black text-amber-400">5 Puntos</p>
-                        <p class="text-[11px] text-slate-500 mt-1">El Cocuy, Ruiz, Tota, Guatapé, Monserrate</p>
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Visitantes Actuales</span>
+                        <p id="kpi-visitors" class="text-3xl font-black text-white mt-1">1,250</p>
                     </div>
-
                     <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-semibold text-slate-400 uppercase">Duración Promedio de Ruta</span>
-                            <span class="text-xs bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-bold">OSRM Validado</span>
-                        </div>
-                        <p id="kpi-duration" class="text-3xl font-black text-white">3.5h</p>
-                        <p class="text-[11px] text-slate-500 mt-1">Tiempo en carretera promedio por turista</p>
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Zonas Concurridas</span>
+                        <p id="kpi-zones" class="text-3xl font-black text-amber-400 mt-1">5 Puntos</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Duración Promedio</span>
+                        <p id="kpi-duration" class="text-3xl font-black text-white mt-1">3.5h</p>
                     </div>
                 </div>
 
-                <!-- BARRAS HORIZONTALES Y TELEMETRÍA DE SERVIDOR -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                        <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-bar text-amber-500"></i> Preferencias Principales de Turistas
-                        </h3>
-                        <div class="h-64">
-                            <canvas id="preferencesChart"></canvas>
-                        </div>
+                        <h3 class="text-sm font-bold text-white mb-4">Preferencias de Turistas</h3>
+                        <div class="h-64"><canvas id="preferencesChart"></canvas></div>
                     </div>
-
-                    <div class="bg-slate-900 border border-amber-500/30 p-5 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950">
-                        <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
-                            <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-                                <i class="fa-solid fa-server"></i> Vista Exclusiva Admin (Monitoreo de Servidor)
-                            </h3>
-                            <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-mono font-bold">Docker Node #1</span>
-                        </div>
-
+                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                        <h3 class="text-sm font-bold text-amber-400 mb-4">Monitoreo de Servidor</h3>
                         <div class="grid grid-cols-2 gap-4 text-center">
-                            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
-                                <span class="text-[11px] text-slate-400 block mb-1">Consumo de CPU</span>
-                                <p id="gauge-cpu" class="text-xl font-mono font-bold text-emerald-400">28.4 %</p>
-                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                                    <div id="bar-cpu" class="bg-emerald-500 h-full w-[28%]"></div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
-                                <span class="text-[11px] text-slate-400 block mb-1">Memoria RAM</span>
-                                <p id="gauge-ram" class="text-xl font-mono font-bold text-amber-400">62.1 %</p>
-                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                                    <div id="bar-ram" class="bg-amber-500 h-full w-[62%]"></div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
-                                <span class="text-[11px] text-slate-400 block mb-1">Almacenamiento Distribuido</span>
-                                <p id="gauge-storage" class="text-xl font-mono font-bold text-blue-400">41.8 %</p>
-                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                                    <div id="bar-storage" class="bg-blue-500 h-full w-[41%]"></div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
-                                <span class="text-[11px] text-slate-400 block mb-1">Latencia de Red (API)</span>
-                                <p id="gauge-latency" class="text-xl font-mono font-bold text-emerald-400">18 ms</p>
-                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                                    <div id="bar-latency" class="bg-emerald-500 h-full w-[18%]"></div>
-                                </div>
-                            </div>
+                            <div class="bg-slate-950 p-3 rounded-xl"><span class="text-xs text-slate-400">CPU</span><p class="text-xl font-bold text-emerald-400">28.4%</p></div>
+                            <div class="bg-slate-950 p-3 rounded-xl"><span class="text-xs text-slate-400">RAM</span><p class="text-xl font-bold text-amber-400">62.1%</p></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SECCIÓN B: REGISTRO DE VISITANTES EN TIEMPO REAL -->
-            <div id="gsec-visitors" class="hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+            <!-- SECCIÓN B: SUPERVISIÓN GLOBAL DE TODAS LAS PROMOCIONES (NUEVO) -->
+            <div id="gsec-allpromos" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-users text-amber-500"></i> Registro de Visitantes en Tiempo Real (Anonimizado)
+                        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-tags"></i> Consola de Supervisión: Promociones Activas de Todos los Comercios
                         </h3>
-                        <p class="text-xs text-slate-400">Conexiones activas, consultas de ruta y estado de sesión.</p>
+                        <p class="text-xs text-slate-400">Revisión en tiempo real de ofertas relámpago, cupones y descuentos activos en el país.</p>
                     </div>
-                    <button onclick="exportVisitorsCSV()" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 font-semibold px-3 py-1.5 rounded-lg border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-csv"></i> Exportar Reporte CSV
-                    </button>
+                    <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-xl text-xs font-bold">4 Promociones Vigentes</span>
                 </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase text-[10px]">
-                            <tr>
-                                <th class="p-3">ID Anonimizado</th>
-                                <th class="p-3">Ubicación Origen</th>
-                                <th class="p-3">Destino Consultado</th>
-                                <th class="p-3">Transporte</th>
-                                <th class="p-3">Hora Conexión</th>
-                                <th class="p-3">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="visitors-table-body" class="divide-y divide-slate-800/60 text-slate-300">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- SECCIÓN C: GESTIÓN Y APROBACIÓN DE COMERCIOS (NUEVO) -->
-            <div id="gsec-merchants" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-                <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-building-circle-check"></i> Solicitudes de Registro de Comercios
-                </h3>
-                <p class="text-xs text-slate-400">Revisa y valida los locales que solicitan publicar ofertas en la plataforma.</p>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase text-[10px]">
                             <tr>
                                 <th class="p-3">Comercio</th>
-                                <th class="p-3">Destino Asociado</th>
-                                <th class="p-3">Categoría</th>
-                                <th class="p-3">Contacto</th>
-                                <th class="p-3">Acciones</th>
+                                <th class="p-3">Ubicación / Destino</th>
+                                <th class="p-3">Título de Promoción</th>
+                                <th class="p-3">Código</th>
+                                <th class="p-3">Estado</th>
+                                <th class="p-3">Acción Admin</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-800 text-slate-300">
+                        <tbody id="global-promos-table" class="divide-y divide-slate-800 text-slate-300">
+                            <tr>
+                                <td class="p-3 font-bold text-white">Restaurante Mirador Suesca</td>
+                                <td class="p-3">Rocas de Suesca</td>
+                                <td class="p-3 font-semibold text-emerald-400">20% Dcto en Almuerzos Típicos</td>
+                                <td class="p-3 font-mono font-bold text-amber-400">SUESCA20</td>
+                                <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold">Activa</span></td>
+                                <td class="p-3"><button onclick="alert('Promoción suspendida por Admin Global')" class="bg-red-500/20 text-red-400 px-2 py-1 rounded font-bold hover:bg-red-500 hover:text-white transition-all text-[10px]">Pausar</button></td>
+                            </tr>
                             <tr>
                                 <td class="p-3 font-bold text-white">Hotel Refugio El Cocuy</td>
                                 <td class="p-3">PNN El Cocuy</td>
-                                <td class="p-3"><span class="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold">Alojamiento</span></td>
-                                <td class="p-3 text-slate-400">contacto@refugiococuy.com</td>
-                                <td class="p-3 flex gap-2">
-                                    <button onclick="alert('Comercio aprobado exitosamente')" class="bg-emerald-500 text-slate-950 font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer">Aprobar</button>
-                                    <button onclick="alert('Solicitud rechazada')" class="bg-red-500/20 text-red-400 font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer">Rechazar</button>
-                                </td>
+                                <td class="p-3 font-semibold text-emerald-400">15% Dcto en Segunda Noche</td>
+                                <td class="p-3 font-mono font-bold text-amber-400">COCUY15</td>
+                                <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold">Activa</span></td>
+                                <td class="p-3"><button onclick="alert('Promoción suspendida por Admin Global')" class="bg-red-500/20 text-red-400 px-2 py-1 rounded font-bold hover:bg-red-500 hover:text-white transition-all text-[10px]">Pausar</button></td>
                             </tr>
                             <tr>
-                                <td class="p-3 font-bold text-white">Artesanías Boyacenses Tota</td>
+                                <td class="p-3 font-bold text-white">Glamping Guatapé Sky</td>
+                                <td class="p-3">Piedra del Peñol - Guatapé</td>
+                                <td class="p-3 font-semibold text-emerald-400">Coctel de Bienvenida Gratis</td>
+                                <td class="p-3 font-mono font-bold text-amber-400">GUATAPE2026</td>
+                                <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold">Activa</span></td>
+                                <td class="p-3"><button onclick="alert('Promoción suspendida por Admin Global')" class="bg-red-500/20 text-red-400 px-2 py-1 rounded font-bold hover:bg-red-500 hover:text-white transition-all text-[10px]">Pausar</button></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-white">Artesanías Tota & Playa</td>
                                 <td class="p-3">Laguna de Tota</td>
-                                <td class="p-3"><span class="bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded text-[10px] font-bold">Comercio Local</span></td>
-                                <td class="p-3 text-slate-400">ventas@artesaniastota.co</td>
-                                <td class="p-3 flex gap-2">
-                                    <button onclick="alert('Comercio aprobado exitosamente')" class="bg-emerald-500 text-slate-950 font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer">Aprobar</button>
-                                    <button onclick="alert('Solicitud rechazada')" class="bg-red-500/20 text-red-400 font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer">Rechazar</button>
-                                </td>
+                                <td class="p-3 font-semibold text-emerald-400">10% Dcto en Recuerdos Hechos a Mano</td>
+                                <td class="p-3 font-mono font-bold text-amber-400">TOTA10</td>
+                                <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold">Activa</span></td>
+                                <td class="p-3"><button onclick="alert('Promoción suspendida por Admin Global')" class="bg-red-500/20 text-red-400 px-2 py-1 rounded font-bold hover:bg-red-500 hover:text-white transition-all text-[10px]">Pausar</button></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- SECCIÓN D: EMISIÓN DE ALERTAS VIALES Y CLIMÁTICAS (NUEVO) -->
-            <div id="gsec-alerts" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-                <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Emitir Alerta de Tráfico o Clima a la Comunidad
-                </h3>
-                <p class="text-xs text-slate-400">Esta alerta aparecerá destacada en el mapa para todos los turistas que consulten esa zona.</p>
+            <!-- SECCIÓN C: REGISTRO DE VISITANTES -->
+            <div id="gsec-visitors" class="hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold text-white">Registro de Visitantes en Tiempo Real</h3>
+                    <button onclick="exportVisitorsCSV()" class="text-xs bg-slate-800 text-amber-400 font-semibold px-3 py-1.5 rounded-lg border border-slate-700">Exportar CSV</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs"><tbody id="visitors-table-body"></tbody></table>
+                </div>
+            </div>
 
+            <!-- SECCIÓN D: GESTIÓN DE COMERCIOS -->
+            <div id="gsec-merchants" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+                <h3 class="text-sm font-bold text-amber-400">Solicitudes de Registro de Comercios</h3>
+                <p class="text-xs text-slate-400">Revisa y aprueba los locales que solicitan ingresar a la plataforma.</p>
+            </div>
+
+            <!-- SECCIÓN E: EMISIÓN DE ALERTAS -->
+            <div id="gsec-alerts" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+                <h3 class="text-sm font-bold text-amber-400">Emitir Alerta de Tráfico o Clima</h3>
                 <form onsubmit="handleBroadcastAlert(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Destino o Vía Afectada</label>
-                            <select id="alert-destination" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-amber-400 font-bold">
-                                <option value="Todas las regiones">Todas las regiones (Alerta Nacional)</option>
-                                <option value="Rocas de Suesca">Vía Bogotá - Suesca</option>
-                                <option value="Parque Nacional Natural El Cocuy">PNN El Cocuy</option>
-                                <option value="Piedra del Peñol - Guatapé">Vía Medellín - Guatapé</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nivel de Severidad</label>
-                            <select id="alert-level" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white">
-                                <option value="Informativa">Informativa (Verde)</option>
-                                <option value="Precaución">Precaución (Amarillo)</option>
-                                <option value="Crítica">Crítica / Cierre de Vía (Rojo)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Detalle del Mensaje</label>
-                        <textarea id="alert-text" required placeholder="Ej: Paso restringido a un carril por mantenimiento vial. Se recomiendan vías alternas." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white" rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs cursor-pointer">
-                        Difundir Alerta Global en Vivo
-                    </button>
+                    <textarea id="alert-text" required placeholder="Escribe la alerta vial..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white" rows="2"></textarea>
+                    <button type="submit" class="w-full bg-amber-500 text-slate-950 font-bold py-2 rounded-xl text-xs">Difundir Alerta</button>
                 </form>
             </div>
 
         </div>
     </div>
 
-    <!-- Modal de Autenticación con Selección de Perfil -->
+    <!-- Modal de Autenticación (LOGIN CON BOTONES SOCIALES ABAJO) -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-950 flex items-center justify-center z-50 p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
             <div class="text-center mb-6">
@@ -531,7 +502,7 @@
                     <i class="fa-solid fa-map-location-dot text-3xl"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-white mb-1">Turismo Inteligente</h2>
-                <p class="text-slate-400 text-sm">Selecciona tu tipo de perfil para ingresar</p>
+                <p class="text-slate-400 text-sm">Selecciona tu perfil de acceso</p>
             </div>
 
             <!-- TABS DE ROLES DE USUARIO -->
@@ -541,26 +512,44 @@
                 <button type="button" id="tab-admin" onclick="switchAuthTab('admin')" class="flex-1 pb-3 border-b-2 border-transparent hover:text-white cursor-pointer">Admin Global</button>
             </div>
 
-            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+            <!-- FORMULARIO TRADICIONAL PRIMERO -->
+            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-3 mb-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electrónico</label>
-                    <input type="email" id="login-email" required placeholder="tu@correo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="tu@correo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-amber-500 text-xs">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contraseña</label>
-                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-amber-500 text-xs">
                 </div>
-                <button type="submit" id="btn-login-submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm cursor-pointer">Ingresar como Turista &rarr;</button>
+                <button type="submit" id="btn-login-submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-xs cursor-pointer">Ingresar como Turista &rarr;</button>
             </form>
 
-            <div class="relative my-6">
-                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
-                <div class="relative flex justify-center text-xs uppercase"><span class="bg-slate-900 px-2 text-slate-500">O también</span></div>
-            </div>
-
-            <button type="button" onclick="loginAsGuest()" class="w-full bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2 cursor-pointer">
+            <button type="button" onclick="loginAsGuest()" class="w-full bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl transition-all text-xs flex items-center justify-center gap-2 cursor-pointer mb-5">
                 <i class="fa-solid fa-user-secret"></i> Ingresar como Invitado
             </button>
+
+            <!-- SEPARADOR -->
+            <div class="relative my-4">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+                <div class="relative flex justify-center text-[10px] uppercase"><span class="bg-slate-900 px-2 text-slate-500">O ingresa rápidamente con</span></div>
+            </div>
+
+            <!-- BOTONES DE ACCESO SOCIAL EN LA PARTE INFERIOR (GMAIL, FB, APPLE) -->
+            <div class="space-y-2.5">
+                <button type="button" onclick="loginWithGoogle()" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-2.5 rounded-xl transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                    <i class="fa-brands fa-google text-red-500 text-sm"></i> Continuar con Gmail / Google
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="loginSocial('Facebook')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-xl text-[11px] flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-brands fa-facebook-f"></i> Facebook
+                    </button>
+                    <button type="button" onclick="loginSocial('Apple')" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 rounded-xl text-[11px] flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-brands fa-apple text-sm"></i> Apple ID
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -588,8 +577,7 @@
             { id: "VIS-8801", origin: "Bogotá - Chapinero", destination: "PNN El Cocuy", transport: "Vehículo", time: "09:12 AM", status: "Activo" },
             { id: "VIS-8802", origin: "Medellín - El Poblado", destination: "Piedra del Peñol - Guatapé", transport: "Autobús", time: "09:08 AM", status: "Activo" },
             { id: "VIS-8803", origin: "Manizales - Centro", destination: "PNN Los Nevados (Ruiz)", transport: "Vehículo", time: "08:55 AM", status: "Inactivo" },
-            { id: "VIS-8804", origin: "Tunja - Norte", destination: "Laguna de Tota", transport: "Autobús", time: "08:42 AM", status: "Activo" },
-            { id: "VIS-8805", origin: "Pasto - Ejido", destination: "Laguna de la Cocha", transport: "Caminata", time: "08:30 AM", status: "Activo" }
+            { id: "VIS-8804", origin: "Tunja - Norte", destination: "Laguna de Tota", transport: "Autobús", time: "08:42 AM", status: "Activo" }
         ];
 
         // LISTA DE 16 DESTINOS DE COLOMBIA
@@ -612,9 +600,36 @@
             { id: 16, name: "Parque Nacional Tayrona", lat: 11.3000, lng: -74.0500, desc: "Encuentro entre la Sierra Nevada y el Mar Caribe.", category: "Naturaleza", img: "https://upload.wikimedia.org/wikipedia/commons/3/36/Playa_Cabo_San_Juan_-_Tayrona.jpg", busInfo: "Buses desde Santa Marta hacia El Zaino", funFact: "Unión directa de la Sierra Nevada con el mar." }
         ];
 
+        // FUNCIONES DE AUTENTICACIÓN SOCIAL (GOOGLE / GMAIL)
+        function loginWithGoogle() {
+            launchApp('Turista (Google)', 'vladimir.rios@gmail.com');
+        }
+
+        function loginSocial(provider) {
+            launchApp(`Turista (${provider})`, `usuario.${provider.toLowerCase()}@turismo.co`);
+        }
+
+        function handleUploadMedia(e) {
+            e.preventDefault();
+            const title = document.getElementById('media-title').value;
+            const url = document.getElementById('media-url').value;
+            
+            const previewContainer = document.getElementById('merchant-gallery-preview');
+            const card = document.createElement('div');
+            card.className = "bg-slate-950 border border-slate-800 rounded-xl p-2 text-center";
+            card.innerHTML = `
+                <img src="${url}" class="w-full h-24 object-cover rounded-lg mb-2">
+                <span class="text-[10px] font-bold text-emerald-400">${title}</span>
+            `;
+            previewContainer.prepend(card);
+            alert("¡Foto/Banner cargado exitosamente a la plataforma!");
+            document.getElementById('media-title').value = '';
+            document.getElementById('media-url').value = '';
+        }
+
         // SUB-PANELES DE ADMIN GLOBAL
         function switchAdminGlobalTab(tab) {
-            const tabs = ['kpi', 'visitors', 'merchants', 'alerts'];
+            const tabs = ['kpi', 'allpromos', 'visitors', 'merchants', 'alerts'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`gtab-${t}`);
                 const sec = document.getElementById(`gsec-${t}`);
@@ -633,15 +648,12 @@
 
         function handleBroadcastAlert(e) {
             e.preventDefault();
-            const dest = document.getElementById('alert-destination').value;
-            const text = document.getElementById('alert-text').value;
-            alert(`¡Alerta emitida exitosamente para ${dest}! Notificación distribuida en tiempo real.`);
-            document.getElementById('alert-text').value = '';
+            alert("¡Alerta emitida exitosamente para la comunidad!");
         }
 
         // SUB-PANELES DE COMERCIO
         function switchMerchantTab(tab) {
-            const tabs = ['analytics', 'promo', 'coupons', 'menu', 'whatsapp'];
+            const tabs = ['analytics', 'media', 'promo', 'coupons', 'menu', 'whatsapp'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`mtab-${t}`);
                 const sec = document.getElementById(`msec-${t}`);
@@ -709,7 +721,7 @@
 
         function testWhatsAppLink() {
             const num = document.getElementById('wa-number').value.replace(/[^0-9]/g, '');
-            const msg = encodeURIComponent(document.getElementById('wa-message').value);
+            const msg = encodeURIComponent("Hola! Quiero reservar para el fin de semana.");
             window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
         }
 
@@ -724,7 +736,7 @@
 
         function handleCreatePromo(e) {
             e.preventDefault();
-            alert("¡Promoción relámpago geolocalizada lanzada!");
+            alert("¡Promoción relámpago lanzada!");
         }
 
         function switchAuthTab(tab) {
