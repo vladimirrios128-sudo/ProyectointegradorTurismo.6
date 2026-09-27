@@ -1,5 +1,6 @@
 ﻿import sys
 import os
+from uuid import uuid4
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import pytest
@@ -31,6 +32,20 @@ def test_register_and_login():
     token = login_res.json()
     assert "access_token" in token
     assert token["token_type"] == "bearer"
+
+def test_public_registration_cannot_assign_privileged_role():
+    user_data = {
+        "email": f"security_{uuid4().hex}@example.com",
+        "full_name": "Security Test",
+        "password": "testpassword123",
+        "requested_account_type": "operador_turistico",
+        "rol": "admin_global",
+    }
+
+    response = client.post("/api/v1/auth/register", json=user_data)
+
+    assert response.status_code == 201
+    assert response.json()["rol"] == "turista"
 
 def test_calculate_route():
     payload = {
