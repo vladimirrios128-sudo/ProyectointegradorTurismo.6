@@ -50,7 +50,7 @@ def register_user(
         email=user_in.email,
         full_name=user_in.full_name,
         hashed_password=get_password_hash(user_in.password),
-        rol="turista",
+        rol="operador",
         is_active=True,
     )
 

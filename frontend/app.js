@@ -473,6 +473,7 @@
 
         function launchApp(roleName, userEmail) {
             document.getElementById('auth-modal').classList.add('hidden');
+            document.getElementById('map')?.classList.remove('hidden');
             document.getElementById('app-nav').classList.remove('hidden');
             document.getElementById('app-nav').classList.add('flex');
             document.getElementById('side-panel').classList.remove('hidden');
@@ -492,6 +493,47 @@
 
             initMap();
             renderPlacesList();
+
+            if (map) map.invalidateSize();
+
+            let operatorMapButton = document.getElementById("operator-map-return");
+            if (currentRole === "operador") {
+                if (!operatorMapButton) {
+                    operatorMapButton = document.createElement("button");
+                    operatorMapButton.id = "operator-map-return";
+                    operatorMapButton.type = "button";
+                    operatorMapButton.textContent = "💼 Volver al Panel";
+                    Object.assign(operatorMapButton.style, {
+                        position: "fixed",
+                        top: "82px",
+                        left: "min(370px, calc(100vw - 190px))",
+                        zIndex: "45",
+                        backgroundColor: "#10b981",
+                        color: "#020617",
+                        border: "none",
+                        borderRadius: "0.375rem",
+                        padding: "0.625rem 1rem",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)"
+                    });
+                    operatorMapButton.addEventListener("click", () => {
+                        document.getElementById("main-app-container")?.classList.add("hidden");
+                        document.getElementById("app-nav")?.classList.add("hidden");
+                        document.getElementById("side-panel")?.classList.add("hidden");
+                        document.getElementById("map")?.classList.add("hidden");
+
+                        const merchantModal = document.getElementById("merchant-modal");
+                        merchantModal?.classList.remove("hidden");
+                        if (merchantModal) merchantModal.style.display = "block";
+                        renderOperadorPanel();
+                    });
+                    document.body.appendChild(operatorMapButton);
+                }
+                operatorMapButton.classList.remove("hidden");
+            } else {
+                operatorMapButton?.classList.add("hidden");
+            }
         }
 
         function toggleAuthView(view) {
@@ -558,7 +600,6 @@
     const email = emailInput.value.trim();
     const password = passwordInput.value;
 
-    // Limpiar mensaje anterior
     errorBox.classList.add("hidden");
     errorBox.textContent = "";
 
@@ -568,116 +609,60 @@
         return;
     }
 
-    // Estado de carga
     button.disabled = true;
     button.textContent = "Ingresando...";
 
     try {
-
         const body = new URLSearchParams();
-
         body.append("username", email);
         body.append("password", password);
 
-               const response = await fetch(
-            `${API_URL}/api/v1/auth/login`,
-            {
-
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: body
-            }
-        );
+        const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body
+        });
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(
-                data.detail || "Correo o contraseña incorrectos."
-            );
+            throw new Error(data.detail || "Correo o contraseña incorrectos.");
         }
 
-
-        /*
-         * EL BACKEND DEVUELVE:
-         *
-         * {
-         *     access_token: "...",
-         *     token_type: "bearer",
-         *     rol: "turista"
-         * }
-         */
-
-
-        // Guardar token
-        localStorage.setItem(
-            "jwt_token",
-            data.access_token
-        );
-
-        // Guardar rol
-        localStorage.setItem(
-            "user_role",
-            data.rol
-        );
-
-        // Guardar nombre
-        localStorage.setItem(
-            "user_name",
-            data.full_name || ""
-        );
+        localStorage.setItem("jwt_token", data.access_token);
+        localStorage.setItem("user_role", data.rol);
+        localStorage.setItem("user_name", data.full_name || "");
 
         authToken = data.access_token;
         currentRole = data.rol;
 
-
-        /*
-         * REDIRECCIÓN SEGÚN ROL
-         */
-
-        if (
-            data.rol === "admin_global" ||
-            data.rol === "admin_comercio"
-        ) {
-
-            // Área administrativa
+        if (data.rol === "admin_global" || data.rol === "admin_comercio") {
             window.location.href = "admin.html";
-
             return;
         }
 
+        const formLogin = document.getElementById("form-login");
 
-        if (data.rol === "turista") {
-
-            // Dashboard normal
-            launchApp(
-                "Turista",
-                data.full_name || email
-            );
-
+        if (currentRole === "turista") {
+            if (formLogin) formLogin.classList.add("hidden");
+            launchApp("Turista", data.full_name || email);
             return;
         }
 
-
-        // Si llega un rol que no reconocemos
-        throw new Error(
-            "El tipo de usuario no está configurado correctamente."
-        );
-
-
+        if (currentRole === "operador") {
+            document.getElementById("auth-modal")?.classList.add("hidden");
+            document.getElementById("form-login")?.classList.add("hidden");
+            if (document.getElementById("auth-modal")) document.getElementById("auth-modal").style.display = "none";
+            renderOperadorPanel();
+            return;
+        }
     } catch (error) {
-
         console.error("Error de login:", error);
-
-        errorBox.textContent =
-            error.message || "No fue posible iniciar sesión.";
-
+        errorBox.textContent = error.message || "No fue posible iniciar sesión.";
         errorBox.classList.remove("hidden");
-
     } finally {
-
         button.disabled = false;
         button.textContent = "Ingresar";
     }
@@ -726,10 +711,131 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('side-panel').classList.add('hidden');
             document.getElementById('merchant-modal').classList.add('hidden');
             document.getElementById('dashboard-modal').classList.add('hidden');
+            document.getElementById("operator-map-return")?.classList.add("hidden");
             if (map) {
                 map.remove();
                 map = null;
                 currentPolyline = null;
             }
         }
+
+        async function handleCreateRoute(event) {
+            event.preventDefault();
+
+            const form = event.currentTarget;
+            const formData = new FormData(form);
+            const payload = {
+                name: formData.get("name").trim(),
+                destination: formData.get("destination").trim(),
+                description: formData.get("description").trim(),
+                price: parseFloat(formData.get("price"))
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/v1/routes/`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    throw new Error(data.detail || "No fue posible crear la ruta.");
+                }
+
+                alert("¡Ruta creada exitosamente!");
+                form.reset();
+            } catch (error) {
+                alert(error.message || "No fue posible crear la ruta.");
+            }
+        }
+
+        function renderOperadorPanel() {
+    // Buscamos el contenedor real de tu HTML (merchant-modal)
+    const container = document.getElementById("merchant-modal");
+    if (!container) return; // Freno de seguridad si no existe
     
+    // Le quitamos la clase hidden para que se dibuje en pantalla
+    container.classList.remove("hidden");
+    container.style.display = "block";
+    
+    container.innerHTML = `
+        <div style="background-color: #0f172a; color: white; min-height: 100vh; padding: 2rem; font-family: sans-serif; position: relative; z-index: 100;">
+            <!-- Encabezado -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e293b; padding-bottom: 1rem; gap: 1rem;">
+                <h2>Panel de Operador Turístico 💼</h2>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button onclick="document.getElementById('merchant-modal')?.classList.add('hidden'); if (document.getElementById('merchant-modal')) document.getElementById('merchant-modal').style.display = 'none'; document.getElementById('main-app-container')?.classList.remove('hidden'); if (typeof launchApp === 'function') launchApp('Turista', localStorage.getItem('user_name') || 'Operador');" style="background-color: #fbbf24; color: #0f172a; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer; font-weight: bold;">🗺️ Ver Mapa de Turista</button>
+                    <button onclick="localStorage.clear(); location.reload();" style="background-color: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer; font-weight: bold;">Salir</button>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <!-- COLUMNA 1: FORMULARIO CRUD (CREAR RUTA) -->
+                <div style="background-color: #1e293b; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <h3 style="color: #fbbf24; margin-bottom: 1rem;">Crear Nueva Ruta Turística ✈️</h3>
+                    <form id="ruta-form" onsubmit="handleCreateRoute(event)">
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: #94a3b8;">Nombre de la Ruta:</label>
+                            <input type="text" name="name" placeholder="Ej: Tour Histórico por el Eje Cafetero" style="width: 100%; padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #475569; background-color: #0f172a; color: white;" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: #94a3b8;">Ciudad de Destino:</label>
+                            <input type="text" name="destination" placeholder="Ej: Manizales" style="width: 100%; padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #475569; background-color: #0f172a; color: white;" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: #94a3b8;">Descripción:</label>
+                            <textarea name="description" placeholder="Describe los puntos a visitar..." style="width: 100%; padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #475569; background-color: #0f172a; color: white; height: 80px;" required></textarea>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: #94a3b8;">Precio por Persona (COP):</label>
+                            <input type="number" name="price" placeholder="Ej: 150000" style="width: 100%; padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #475569; background-color: #0f172a; color: white;" required>
+                        </div>
+                        <button type="submit" style="width: 100%; background-color: #fbbf24; color: #0f172a; font-weight: bold; border: none; padding: 0.75rem; border-radius: 0.25rem; cursor: pointer; font-size: 1rem;">Publicar Ruta Turística</button>
+                    </form>
+                </div>
+
+                <!-- COLUMNA 2: READ (ESTADÍSTICAS PROBABILIDADES) -->
+                <div style="background-color: #1e293b; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <h3 style="color: #fbbf24; margin-bottom: 1rem;">Probabilidad de Arribo de Turistas (Por Género) 📊</h3>
+                    <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">Métrica estimada en base a búsquedas de la temporada actual:</p>
+                    
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #475569; color: #94a3b8;">
+                                <th style="padding: 0.5rem;">Ciudad Destino</th>
+                                <th style="padding: 0.5rem;">♂️ Hombres</th>
+                                <th style="padding: 0.5rem;">♀️ Mujeres</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #334155;">
+                                <td style="padding: 0.75rem; font-weight: bold;">Bogotá</td>
+                                <td style="padding: 0.75rem; color: #38bdf8;">52%</td>
+                                <td style="padding: 0.75rem; color: #f472b6;">48%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #334155;">
+                                <td style="padding: 0.75rem; font-weight: bold;">Medellín</td>
+                                <td style="padding: 0.75rem; color: #38bdf8;">45%</td>
+                                <td style="padding: 0.75rem; color: #f472b6;">55%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #334155;">
+                                <td style="padding: 0.75rem; font-weight: bold;">Cartagena</td>
+                                <td style="padding: 0.75rem; color: #38bdf8;">40%</td>
+                                <td style="padding: 0.75rem; color: #f472b6;">60%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #334155;">
+                                <td style="padding: 0.75rem; font-weight: bold;">Santa Marta</td>
+                                <td style="padding: 0.75rem; color: #38bdf8;">48%</td>
+                                <td style="padding: 0.75rem; color: #f472b6;">52%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+}
