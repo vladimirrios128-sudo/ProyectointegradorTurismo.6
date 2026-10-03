@@ -5,6 +5,12 @@ class RouteRequest(BaseModel):
     origin_id: str
     destination_id: str
 
+class RouteCreate(BaseModel):
+    name: str
+    destination: str
+    description: str
+    price: float
+
 class LocationDetail(BaseModel):
     id: str
     name: str

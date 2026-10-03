@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: .
+    container_name: turismo_backend
+    ports:
+      - "5000:8080"
+    volumes:
+      - ./sql_app.db:/app/sql_app.db
+    environment:
+      PORT: 8080
+      SECRET_KEY: ${SECRET_KEY:-dev-only-change-this-secret}
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:alpine
+    container_name: turismo_frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    restart: unless-stopped

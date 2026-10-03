@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Administración | Turismo Inteligente</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+        rel="stylesheet"
+        href="styles.css"
+    >
+
+</head>
+
+
+<body class="bg-slate-950 text-white min-h-screen">
+
+
+    <main class="min-h-screen flex items-center justify-center p-6">
+
+        <section class="w-full max-w-5xl">
+
+
+            <!-- CABECERA -->
+
+            <div class="flex items-center justify-between mb-8">
+
+                <div>
+
+                    <p
+                        id="admin-role"
+                        class="text-amber-400 text-sm font-semibold uppercase tracking-wider"
+                    >
+                        Área administrativa
+                    </p>
+
+                    <h1 class="text-3xl font-bold mt-1">
+                        Panel de Administración
+                    </h1>
+
+                    <p
+                        id="admin-user"
+                        class="text-slate-400 mt-2"
+                    >
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="btn-logout"
+                    class="bg-red-500/10 border border-red-500/20 text-red-400 px-5 py-3 rounded-xl hover:bg-red-500/20 transition"
+                >
+                    Cerrar sesión
+                </button>
+
+            </div>
+
+
+            <!-- PANEL -->
+
+            <div class="grid md:grid-cols-3 gap-5">
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+
+                    <div class="text-amber-400 text-2xl mb-4">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+
+                    <h2 class="font-bold text-lg">
+                        Estadísticas
+                    </h2>
+
+                    <p class="text-slate-400 text-sm mt-2">
+                        Consulta la información turística de la plataforma.
+                    </p>
+
+                </div>
+
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+
+                    <div class="text-emerald-400 text-2xl mb-4">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+
+                    <h2 class="font-bold text-lg">
+                        Gestión
+                    </h2>
+
+                    <p class="text-slate-400 text-sm mt-2">
+                        Administra información de comercios y destinos.
+                    </p>
+
+                </div>
+
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+
+                    <div class="text-blue-400 text-2xl mb-4">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+
+                    <h2 class="font-bold text-lg">
+                        Usuarios
+                    </h2>
+
+                    <p class="text-slate-400 text-sm mt-2">
+                        Gestiona los usuarios de la plataforma.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- MENSAJE -->
+
+            <div
+                id="admin-message"
+                class="mt-6 bg-slate-900 border border-slate-800 rounded-2xl p-6 text-slate-400"
+            >
+                Cargando permisos...
+            </div>
+
+
+        </section>
+
+    </main>
+
+
+    <script src="admin.js"></script>
+
+</body>
+
+</html>
