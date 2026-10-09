@@ -1,145 +1,531 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Administración | Turismo Inteligente</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Global de Gobernanza y Análisis</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <link
-        rel="stylesheet"
-        href="styles.css"
-    >
-
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+<body class="bg-slate-950 text-white min-h-screen p-4 md:p-8 flex flex-col items-center justify-center font-sans">
 
-
-<body class="bg-slate-950 text-white min-h-screen">
-
-
-    <main class="min-h-screen flex items-center justify-center p-6">
-
-        <section class="w-full max-w-5xl">
-
-
-            <!-- CABECERA -->
-
-            <div class="flex items-center justify-between mb-8">
-
+    <div class="w-full max-w-7xl space-y-6">
+        
+        <!-- Header -->
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-wrap justify-between items-center shadow-2xl gap-4">
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-400 text-3xl">📈</div>
                 <div>
-
-                    <p
-                        id="admin-role"
-                        class="text-amber-400 text-sm font-semibold uppercase tracking-wider"
-                    >
-                        Área administrativa
-                    </p>
-
-                    <h1 class="text-3xl font-bold mt-1">
-                        Panel de Administración
-                    </h1>
-
-                    <p
-                        id="admin-user"
-                        class="text-slate-400 mt-2"
-                    >
-                    </p>
-
+                    <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">TABLERO GLOBAL DE GOBERNANZA</h1>
+                    <p class="text-xs text-slate-400 mt-0.5">Supervisión integral de tráfico turístico, comercios, RBAC y telemetría de red.</p>
                 </div>
-
-
-                <button
-                    id="btn-logout"
-                    class="bg-red-500/10 border border-red-500/20 text-red-400 px-5 py-3 rounded-xl hover:bg-red-500/20 transition"
-                >
-                    Cerrar sesión
-                </button>
-
             </div>
 
-
-            <!-- PANEL -->
-
-            <div class="grid md:grid-cols-3 gap-5">
-
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-
-                    <div class="text-amber-400 text-2xl mb-4">
-                        <i class="fa-solid fa-chart-line"></i>
-                    </div>
-
-                    <h2 class="font-bold text-lg">
-                        Estadísticas
-                    </h2>
-
-                    <p class="text-slate-400 text-sm mt-2">
-                        Consulta la información turística de la plataforma.
-                    </p>
-
+            <div class="flex items-center space-x-3">
+                <div class="bg-slate-950 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl flex items-center gap-2 text-xs">
+                    <span class="relative flex h-2.5 w-2.5">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-slate-300 font-medium">API Status: <strong class="text-emerald-400">ONLINE (12ms)</strong></span>
                 </div>
 
+                <a href="places.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700/50 shadow-md">
+                    ✖ Cerrar
+                </a>
+            </div>
+        </div>
 
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <!-- Pestañas -->
+        <div class="flex gap-2.5 overflow-x-auto text-xs font-semibold pb-1 scrollbar-none">
+            <button class="admin-tab bg-amber-500 text-slate-950 px-4 py-2.5 rounded-xl shadow-lg transition font-bold whitespace-nowrap" data-target="tab-telemetria">
+                📊 Métricas & Telemetría
+            </button>
+            <button class="admin-tab bg-slate-900 border border-slate-800 text-slate-400 px-4 py-2.5 rounded-xl hover:text-white transition whitespace-nowrap" data-target="tab-rbac">
+                👤 Gestión de Usuarios (RBAC)
+            </button>
+            <button class="admin-tab bg-slate-900 border border-slate-800 text-slate-400 px-4 py-2.5 rounded-xl hover:text-white transition whitespace-nowrap" data-target="tab-locales">
+                🏪 Total Locales Comerciales
+            </button>
+            <button class="admin-tab bg-slate-900 border border-slate-800 text-slate-400 px-4 py-2.5 rounded-xl hover:text-white transition whitespace-nowrap" data-target="tab-promociones">
+                🏷 Promociones de Comercios
+            </button>
+            <button class="admin-tab bg-slate-900 border border-slate-800 text-slate-400 px-4 py-2.5 rounded-xl hover:text-white transition whitespace-nowrap" data-target="tab-aprobar">
+                🏢 Aprobar Comercios
+            </button>
+            <button class="admin-tab bg-slate-900 border border-slate-800 text-slate-400 px-4 py-2.5 rounded-xl hover:text-white transition whitespace-nowrap" data-target="tab-alertas">
+                ⚠️ Alertas Viales
+            </button>
+        </div>
 
-                    <div class="text-emerald-400 text-2xl mb-4">
-                        <i class="fa-solid fa-store"></i>
-                    </div>
-
-                    <h2 class="font-bold text-lg">
-                        Gestión
-                    </h2>
-
-                    <p class="text-slate-400 text-sm mt-2">
-                        Administra información de comercios y destinos.
-                    </p>
-
+        <!-- 1. MÉTRICAS & TELEMETRÍA -->
+        <div id="tab-telemetria" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-xl">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">VISITANTES ACTUALES</p>
+                    <h3 class="text-3xl font-black text-white mt-1">1,250</h3>
                 </div>
-
-
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-
-                    <div class="text-blue-400 text-2xl mb-4">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-
-                    <h2 class="font-bold text-lg">
-                        Usuarios
-                    </h2>
-
-                    <p class="text-slate-400 text-sm mt-2">
-                        Gestiona los usuarios de la plataforma.
-                    </p>
-
+                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-xl">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">LOCALES REGISTRADOS</p>
+                    <h3 class="text-3xl font-black text-emerald-400 mt-1">48 Comercios</h3>
                 </div>
-
+                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-xl">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">ALERTAS VIALES ACTIVAS</p>
+                    <h3 class="text-3xl font-black text-rose-400 mt-1" id="activeAlertsCount">1 Incidente</h3>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-xl">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">DURACIÓN PROMEDIO</p>
+                    <h3 class="text-3xl font-black text-white mt-1">3.5h</h3>
+                </div>
             </div>
 
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                    <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wide">📈 Tendencia Semanal de Visitantes por Región</h3>
+                    <div class="h-64 relative">
+                        <canvas id="afluenciaChart"></canvas>
+                    </div>
+                </div>
 
-            <!-- MENSAJE -->
-
-            <div
-                id="admin-message"
-                class="mt-6 bg-slate-900 border border-slate-800 rounded-2xl p-6 text-slate-400"
-            >
-                Cargando permisos...
+                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4 flex flex-col justify-between">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wide">📊 Preferencias por Categoría</h3>
+                    <div class="h-52 relative flex items-center justify-center">
+                        <canvas id="preferenciasChart"></canvas>
+                    </div>
+                </div>
             </div>
 
+            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wide">📡 Telemetría y Carga del Servidor FastAPI</h3>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center shadow-inner">
+                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Uso CPU</p>
+                        <p class="text-2xl font-black text-emerald-400 mt-1">28.4%</p>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center shadow-inner">
+                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Uso RAM</p>
+                        <p class="text-2xl font-black text-amber-400 mt-1">62.1%</p>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center shadow-inner">
+                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Carga RPS</p>
+                        <p class="text-2xl font-black text-sky-400 mt-1">142 req/s</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        </section>
+        <!-- 2. GESTIÓN OPERATIVA DE USUARIOS (RBAC) -->
+        <div id="tab-rbac" class="tab-content hidden bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-5">
+            <div class="flex flex-wrap justify-between items-center gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-base font-bold text-amber-400 uppercase tracking-wide">👤 Control Operativo de Usuarios y Permisos</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Asigna roles o suspende accesos en tiempo real.</p>
+                </div>
 
-    </main>
+                <div class="w-full sm:w-80">
+                    <input type="text" id="searchUserRBAC" placeholder="🔍 Buscar por Usuario o Correo..." 
+                           class="w-full bg-slate-950 border border-slate-700 rounded-xl text-xs text-white p-2.5 focus:outline-none focus:border-amber-500 transition">
+                </div>
+            </div>
 
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="text-slate-400 border-b border-slate-800 text-[10px] uppercase tracking-wider">
+                            <th class="pb-3">Usuario / Email</th>
+                            <th class="pb-3">Nombre Completo</th>
+                            <th class="pb-3">Rol Actual</th>
+                            <th class="pb-3">Estado</th>
+                            <th class="pb-3 text-right">Acciones de Permiso</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userRbacTableBody" class="divide-y divide-slate-800/60 text-slate-300">
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-    <script src="admin.js"></script>
+        <!-- 3. TOTAL LOCALES COMERCIALES -->
+        <div id="tab-locales" class="tab-content hidden bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-5">
+            <div class="flex flex-wrap justify-between items-center gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-base font-bold text-emerald-400 uppercase tracking-wide">🏪 Locales Comerciales Registrados</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Mostrando registros activos en la red regional.</p>
+                </div>
 
+                <div class="w-full sm:w-80">
+                    <input type="text" id="searchComercioInput" placeholder="🔍 Buscar por Nombre, Categoría o Ciudad..." 
+                           class="w-full bg-slate-950 border border-slate-700 rounded-xl text-xs text-white p-2.5 focus:outline-none focus:border-emerald-500 transition">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="text-slate-400 border-b border-slate-800 text-[10px] uppercase tracking-wider">
+                            <th class="pb-3">Establecimiento</th>
+                            <th class="pb-3">Categoría</th>
+                            <th class="pb-3">Ubicación</th>
+                            <th class="pb-3">Propietario</th>
+                            <th class="pb-3">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comercioTableBody" class="divide-y divide-slate-800/60 text-slate-300">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-between items-center pt-2 border-t border-slate-800/80 text-xs text-slate-400">
+                <span id="pageInfoText">Página 1 de 2</span>
+                <div class="flex gap-2">
+                    <button id="btnPrevPage" class="bg-slate-950 border border-slate-800 hover:bg-slate-800 px-3 py-1.5 rounded-lg transition disabled:opacity-40">← Anterior</button>
+                    <button id="btnNextPage" class="bg-slate-950 border border-slate-800 hover:bg-slate-800 px-3 py-1.5 rounded-lg transition disabled:opacity-40">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. PROMOCIONES DE COMERCIOS -->
+        <div id="tab-promociones" class="tab-content hidden bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+            <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wide">🏷 Promociones Activas en la Región</h2>
+            <div class="space-y-3 text-xs">
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-white text-sm">Restaurante Mirador Suesca - 20% en Almuerzos</h4>
+                        <p class="text-slate-400 text-[11px] mt-0.5">Válido hasta las 5:00 PM | Dirigido a Turistas Aventura</p>
+                    </div>
+                    <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full text-[10px] font-bold">ACTIVA</span>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-white text-sm">Artesanías Laguna de Tota - Cupón $10.000</h4>
+                        <p class="text-slate-400 text-[11px] mt-0.5">Válido fin de semana | Dirigido a Turistas Culturales</p>
+                    </div>
+                    <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full text-[10px] font-bold">ACTIVA</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. APROBAR COMERCIOS -->
+        <div id="tab-aprobar" class="tab-content hidden bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+            <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wide">🏢 Solicitudes de Registro de Comercios</h2>
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                <div>
+                    <h4 class="font-bold text-white text-sm">Hotel Glamping El Cocuy</h4>
+                    <p class="text-slate-400 text-[11px]">NIT: 901.452.890-1 | Ubicación: Guicán de la Sierra</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-[11px] transition">Aprobar ✅</button>
+                    <button class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 font-bold px-3 py-1.5 rounded-lg text-[11px] transition">Rechazar ❌</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. ALERTAS VIALES -->
+        <div id="tab-alertas" class="tab-content hidden bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h2 class="text-sm font-bold text-rose-400 uppercase tracking-wide">⚠️ Emitir Alerta Vial / Climatológica</h2>
+                    <form id="alertForm" class="space-y-3 text-xs">
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-medium">Zona Afectada</label>
+                            <input type="text" id="alertZone" required placeholder="Ej: Vía Bogotá - Suesca Km 42" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-white focus:outline-none focus:border-rose-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-medium">Nivel de Riesgo</label>
+                            <select id="alertSeverity" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-white focus:outline-none focus:border-rose-500">
+                                <option value="Alto">Alto (Cierre Total)</option>
+                                <option value="Medio">Medio (Paso Restringido)</option>
+                                <option value="Bajo">Bajo (Precaución Clima)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1 font-medium">Descripción del Incidente</label>
+                            <textarea id="alertDesc" required placeholder="Ej: Cierre parcial por mantenimiento o derrumbe." class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-white h-20 focus:outline-none focus:border-rose-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-2.5 rounded-xl transition shadow-lg">
+                            📢 Emitir Alerta a Todos los Turistas
+                        </button>
+                    </form>
+                </div>
+
+                <div class="space-y-4">
+                    <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wide">📋 Alertas Regionales Vigentes</h2>
+                    <div id="alertsListContainer" class="space-y-3 text-xs"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script de Interactividad -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.admin-tab');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => {
+                        t.className = "admin-tab bg-slate-900 border border-slate-800 text-slate-400 px-4 py-2.5 rounded-xl hover:text-white transition font-semibold whitespace-nowrap";
+                    });
+
+                    contents.forEach(c => c.classList.add('hidden'));
+
+                    tab.className = "admin-tab bg-amber-500 text-slate-950 px-4 py-2.5 rounded-xl shadow-lg transition font-bold whitespace-nowrap";
+                    
+                    const targetId = tab.getAttribute('data-target');
+                    const targetContent = document.getElementById(targetId);
+                    if (targetContent) targetContent.classList.remove('hidden');
+                });
+            });
+
+            const ctxAfluencia = document.getElementById('afluenciaChart').getContext('2d');
+            new Chart(ctxAfluencia, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Visitantes Estimados',
+                        data: [320, 410, 480, 650, 920, 1450, 1250],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#f59e0b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+
+            const ctxPref = document.getElementById('preferenciasChart').getContext('2d');
+            new Chart(ctxPref, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Naturaleza', 'Aventura', 'Gastronomía', 'Cultura'],
+                    datasets: [{
+                        data: [50, 30, 18, 12],
+                        backgroundColor: ['#10b981', '#38bdf8', '#f59e0b', '#a855f7'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12, font: { size: 10 } } } }
+                }
+            });
+
+            const usersData = [
+                { id: 1, email: "vladimirrios128@gmail.com", name: "Vladimir Ríos", role: "super_admin", active: true },
+                { id: 2, email: "comercio_suesca@gmail.com", name: "Carlos Gómez", role: "merchant", active: true },
+                { id: 3, email: "auditor_boyaca@gob.co", name: "Jose Auditor", role: "auditor", active: true },
+                { id: 4, email: "juan_turista@gmail.com", name: "Juan Pérez", role: "tourist", active: true },
+                { id: 5, email: "maria_turista@gmail.com", name: "María López", role: "tourist", active: false }
+            ];
+
+            const rbacTableBody = document.getElementById('userRbacTableBody');
+            const searchUserRBAC = document.getElementById('searchUserRBAC');
+
+            function renderRbacTable(data) {
+                if (!rbacTableBody) return;
+                rbacTableBody.innerHTML = '';
+
+                data.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="py-3 font-medium text-white text-xs">${user.email}</td>
+                        <td class="text-slate-400 text-xs">${user.name}</td>
+                        <td>
+                            <select onchange="updateUserRole(${user.id}, this.value)" class="bg-slate-950 border border-slate-800 text-amber-400 text-xs font-bold rounded-lg p-1.5 focus:outline-none">
+                                <option value="super_admin" ${user.role === 'super_admin' ? 'selected' : ''}>Super Admin</option>
+                                <option value="merchant" ${user.role === 'merchant' ? 'selected' : ''}>Admin Comercio</option>
+                                <option value="auditor" ${user.role === 'auditor' ? 'selected' : ''}>Auditor</option>
+                                <option value="tourist" ${user.role === 'tourist' ? 'selected' : ''}>Turista</option>
+                            </select>
+                        </td>
+                        <td>
+                            <span class="${user.active ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}">
+                                ● ${user.active ? 'Activo' : 'Suspendido'}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <button onclick="toggleUserStatus(${user.id})" class="${user.active ? 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30' : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30'} font-bold px-3 py-1 rounded-lg text-[10px] transition">
+                                ${user.active ? '🚫 Suspender' : '✅ Activar'}
+                            </button>
+                        </td>
+                    `;
+                    rbacTableBody.appendChild(tr);
+                });
+            }
+
+            if (searchUserRBAC) {
+                searchUserRBAC.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    const filtered = usersData.filter(u => 
+                        u.email.toLowerCase().includes(query) || 
+                        u.name.toLowerCase().includes(query) ||
+                        u.role.toLowerCase().includes(query)
+                    );
+                    renderRbacTable(filtered);
+                });
+            }
+
+            window.updateUserRole = (id, newRole) => {
+                const user = usersData.find(u => u.id === id);
+                if (user) {
+                    user.role = newRole;
+                    alert(`✅ Rol de ${user.email} actualizado a "${newRole}".`);
+                }
+            };
+
+            window.toggleUserStatus = (id) => {
+                const user = usersData.find(u => u.id === id);
+                if (user) {
+                    user.active = !user.active;
+                    renderRbacTable(usersData);
+                }
+            };
+
+            renderRbacTable(usersData);
+
+            const comerciosData = [
+                { name: "Restaurante Mirador Suesca", cat: "Gastronomía", city: "Suesca, Cundinamarca", owner: "Carlos Gómez", status: "Activo" },
+                { name: "Artesanías & Recuerdos Tota", cat: "Cultural", city: "Aquitania, Boyacá", owner: "María Rodríguez", status: "Activo" },
+                { name: "Hotel Glamping El Cocuy", cat: "Hospedaje", city: "Guicán de la Sierra", owner: "Vladimir Ríos", status: "Activo" },
+                { name: "Café & Aventura Los Nevados", cat: "Gastronomía", city: "Manizales, Caldas", owner: "Luisa Torres", status: "Activo" },
+                { name: "Guías Extremos Suesca", cat: "Aventura", city: "Suesca, Cundinamarca", owner: "Andrés Parra", status: "Activo" },
+                { name: "Parador Turístico Playa Blanca", cat: "Gastronomía", city: "Tota, Boyacá", owner: "Hernán Silva", status: "Activo" }
+            ];
+
+            let currentPage = 1;
+            const itemsPerPage = 4;
+            let filteredComercios = [...comerciosData];
+
+            const tableBody = document.getElementById('comercioTableBody');
+            const searchInput = document.getElementById('searchComercioInput');
+            const pageInfoText = document.getElementById('pageInfoText');
+            const btnPrev = document.getElementById('btnPrevPage');
+            const btnNext = document.getElementById('btnNextPage');
+
+            function renderComerciosTable() {
+                if (!tableBody) return;
+                tableBody.innerHTML = '';
+
+                const totalPages = Math.ceil(filteredComercios.length / itemsPerPage) || 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+
+                const start = (currentPage - 1) * itemsPerPage;
+                const pageItems = filteredComercios.slice(start, start + itemsPerPage);
+
+                pageItems.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="py-3 font-bold text-white text-xs">${item.name}</td>
+                        <td><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] font-semibold">${item.cat}</span></td>
+                        <td class="text-slate-400">${item.city}</td>
+                        <td class="text-slate-400">${item.owner}</td>
+                        <td><span class="text-emerald-400 font-bold">● ${item.status}</span></td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+                if (pageInfoText) pageInfoText.innerText = `Página ${currentPage} de ${totalPages}`;
+                if (btnPrev) btnPrev.disabled = currentPage === 1;
+                if (btnNext) btnNext.disabled = currentPage >= totalPages;
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    filteredComercios = comerciosData.filter(item => 
+                        item.name.toLowerCase().includes(query) ||
+                        item.cat.toLowerCase().includes(query) ||
+                        item.city.toLowerCase().includes(query) ||
+                        item.owner.toLowerCase().includes(query)
+                    );
+                    currentPage = 1;
+                    renderComerciosTable();
+                });
+            }
+
+            if (btnPrev) btnPrev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderComerciosTable(); } });
+            if (btnNext) btnNext.addEventListener('click', () => { currentPage++; renderComerciosTable(); });
+
+            renderComerciosTable();
+
+            const alertsList = [
+                { id: 1, zone: "Vía Bogotá - Suesca Km 42", severity: "Alto", desc: "Cierre parcial por mantenimiento. Tráfico lento." }
+            ];
+
+            const alertForm = document.getElementById('alertForm');
+            const alertsListContainer = document.getElementById('alertsListContainer');
+
+            function renderAlerts() {
+                if (!alertsListContainer) return;
+                alertsListContainer.innerHTML = '';
+
+                const countBadge = document.getElementById('activeAlertsCount');
+                if (countBadge) countBadge.innerText = `${alertsList.length} ${alertsList.length === 1 ? 'Incidente' : 'Incidentes'}`;
+
+                if (alertsList.length === 0) {
+                    alertsListContainer.innerHTML = `<div class="bg-slate-950 p-4 rounded-xl text-slate-500 text-center">No hay alertas viales activas actualmente.</div>`;
+                    return;
+                }
+
+                alertsList.forEach(alert => {
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center gap-3";
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded text-[10px] font-bold uppercase">${alert.severity}</span>
+                                <h4 class="font-bold text-white text-xs">${alert.zone}</h4>
+                            </div>
+                            <p class="text-slate-400 text-[11px]">${alert.desc}</p>
+                        </div>
+                        <button onclick="deleteAlert(${alert.id})" class="bg-slate-800 hover:bg-rose-900/50 hover:text-rose-400 text-slate-400 p-2 rounded-lg text-xs transition">
+                            🗑 Desactivar
+                        </button>
+                    `;
+                    alertsListContainer.appendChild(card);
+                });
+            }
+
+            if (alertForm) {
+                alertForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const zone = document.getElementById('alertZone').value;
+                    const severity = document.getElementById('alertSeverity').value;
+                    const desc = document.getElementById('alertDesc').value;
+
+                    alertsList.unshift({ id: Date.now(), zone, severity, desc });
+                    alertForm.reset();
+                    renderAlerts();
+                });
+            }
+
+            window.deleteAlert = (id) => {
+                const index = alertsList.findIndex(a => a.id === id);
+                if (index !== -1) {
+                    alertsList.splice(index, 1);
+                    renderAlerts();
+                }
+            };
+
+            renderAlerts();
+        });
+    </script>
 </body>
-
 </html>

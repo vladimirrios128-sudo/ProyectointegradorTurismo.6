@@ -1,127 +1,113 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-from passlib.context import CryptContext
+import random
+import time
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel, EmailStr
 
-# Crea un encriptador rápido justo ahí arriba
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+router = APIRouter(prefix="/api/v1/auth", tags=["Autenticación"])
 
-from app.core.deps import get_current_user
-from app.core.security import (
-    create_access_token,
-    get_password_hash,
-    verify_password,
-)
-from app.db.models import UserModel
-from app.db.session import get_db
-from app.schemas.auth import Token, UserCreate, UserResponse
+# Almacén temporal en memoria para los códigos OTP
+otp_store = {}
 
+# Parámetros del servidor SMTP de correo electrónico
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+SENDER_EMAIL = "tu_correo@gmail.com"
+SENDER_PASSWORD = "tu_app_password"
 
-router = APIRouter()
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
 
+class Verify2FARequest(BaseModel):
+    email: EmailStr
+    otp_code: str
 
-@router.post(
-    "/register",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-def register_user(
-    user_in: UserCreate,
-    db: Session = Depends(get_db),
-):
+def send_otp_email(destination_email: str, otp_code: str):
+    """Envía el código de verificación OTP mediante SMTP."""
+    subject = "🔑 Código de Verificación (2FA) - Turismo Inteligente"
+    body = f"""
+    Hola,
 
-    # Buscar si el correo ya existe
-    existing_user = (
-        db.query(UserModel)
-        .filter(UserModel.email == user_in.email)
-        .first()
-    )
+    Tu código de verificación en dos pasos para ingresar a Turismo Inteligente es:
 
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El correo electrónico ya se encuentra registrado.",
-        )
+    👉 {otp_code} 👈
 
+    Este código es válido por 5 minutos. Si no solicitaste este código, ignora este correo.
 
-    # Todos los usuarios registrados desde el formulario
-    # público nacen como turistas.
-    user = UserModel(
-        email=user_in.email,
-        full_name=user_in.full_name,
-        hashed_password=get_password_hash(user_in.password),
-        rol="operador",
-        is_active=True,
-    )
+    Saludos,
+    Equipo de Turismo Inteligente Colombia.
+    """
+    
+    msg = MIMEMultipart()
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = destination_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
 
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    try:
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+    except Exception as e:
+        print(f"[SMTP log] Error enviando correo electrónico: {e}")
 
-    return user
-
-
-@router.post(
-    "/login",
-    response_model=Token,
-)
-def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db),
-):
-
-    # Buscar usuario por correo
-    user = (
-        db.query(UserModel)
-        .filter(UserModel.email == form_data.username)
-        .first()
-    )
-
-
-    # Validar usuario y contraseña
-    if (
-        user is None
-        or not user.is_active
-        or not verify_password(
-            form_data.password,
-            user.hashed_password,
-        )
-    ):
-
+@router.post("/login")
+def login_step_one(credentials: LoginRequest):
+    if len(credentials.password) < 6:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales incorrectas.",
-            headers={
-                "WWW-Authenticate": "Bearer"
-            },
+            detail="Credenciales incorrectas"
         )
 
+    otp_code = f"{random.randint(100000, 999999)}"
+    expires_at = time.time() + 300  # Válido por 5 minutos
 
-    # Crear JWT
-    access_token = create_access_token(
-        data={
-            "sub": user.email,
-            "rol": user.rol,
-            "name": user.full_name,
-        }
-    )
-
-
-    # Respuesta
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "rol": user.rol,
-        "full_name": user.full_name,
+    otp_store[credentials.email] = {
+        "otp": otp_code,
+        "expires_at": expires_at
     }
 
+    send_otp_email(credentials.email, otp_code)
 
-@router.get(
-    "/me",
-    response_model=UserResponse,
-)
-def read_current_user(
-    current_user: UserModel = Depends(get_current_user),
-):
+    return {
+        "status": "2fa_required",
+        "message": "Código de verificación enviado al correo.",
+        "email": credentials.email
+    }
 
-    return current_user
+@router.post("/verify-2fa")
+def verify_two_factor(data: Verify2FARequest):
+    record = otp_store.get(data.email)
+
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No se ha solicitado un código para este correo."
+        )
+
+    if time.time() > record["expires_at"]:
+        del otp_store[data.email]
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El código de verificación ha expirado."
+        )
+
+    if record["otp"] != data.otp_code.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Código de verificación incorrecto."
+        )
+
+    del otp_store[data.email]
+
+    return {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "token_type": "bearer",
+        "role": "merchant",
+        "email": data.email
+    }

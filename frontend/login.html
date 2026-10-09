@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Turismo Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center font-sans">
+
+    <!-- Formulario Principal de Login -->
+    <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl space-y-6">
+        <div class="text-center space-y-2">
+            <span class="text-4xl">📍</span>
+            <h2 class="text-xl font-bold text-amber-500">Turismo Inteligente - Colombia</h2>
+            <p class="text-xs text-slate-400">Ingresa tus credenciales para continuar</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wide block mb-1">Correo Electrónico</label>
+                <input type="email" id="emailInput" required placeholder="tu_usuario@dominio.com" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 focus:outline-none focus:border-amber-500 transition">
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wide block mb-1">Contraseña</label>
+                <input type="password" id="passwordInput" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 focus:outline-none focus:border-amber-500 transition">
+            </div>
+
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-lg">
+                Iniciar Sesión
+            </button>
+        </form>
+    </div>
+
+    <!-- Modal Flotante de Verificación 2FA -->
+    <div id="modal2FA" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center hidden z-50">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-center">
+            <div class="text-3xl">📩</div>
+            <h3 class="text-base font-bold text-amber-500">Verificación en Dos Pasos (2FA)</h3>
+            <p class="text-xs text-slate-400">Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo a continuación para continuar.</p>
+
+            <input type="text" id="otpInput" maxlength="6" placeholder="000000" class="w-full text-center text-lg font-mono tracking-widest bg-slate-950 border border-slate-700 text-amber-400 rounded-xl p-3 focus:outline-none focus:border-amber-500">
+
+            <p id="otpError" class="text-[11px] text-rose-500 hidden font-semibold"></p>
+
+            <div class="flex gap-2">
+                <button type="button" id="btnCancel2FA" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 rounded-xl text-xs transition">
+                    Cancelar
+                </button>
+                <button type="button" id="btnVerify2FA" class="w-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-xl text-xs transition shadow-md">
+                    Verificar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

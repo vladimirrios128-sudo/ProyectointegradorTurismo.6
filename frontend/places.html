@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turismo Inteligente - Colombia</title>
+    
+    <!-- Configuración PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet CSS y JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Routing Machine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    
+    <!-- Chart.js para el Perfil de Altitud -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .leaflet-routing-container { display: none !important; }
+        
+        /* Personalización del selector de capas de Leaflet en modo oscuro */
+        .leaflet-control-layers {
+            background-color: rgba(15, 23, 42, 0.95) !important;
+            border: 1px solid rgba(51, 65, 85, 0.8) !important;
+            border-radius: 0.75rem !important;
+            color: #ffffff !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+            padding: 8px 12px !important;
+        }
+        .leaflet-control-layers-base label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col font-sans">
+
+    <!-- Header / Barra Superior -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex justify-between items-center z-20 shadow-lg">
+        <div class="flex items-center space-x-3">
+            <span class="text-xl">📍</span>
+            <h1 class="text-base font-bold tracking-wide text-amber-500">Turismo Inteligente - Colombia</h1>
+        </div>
+
+        <div id="headerActions" class="flex items-center space-x-3 text-xs"></div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <div class="flex flex-1 relative overflow-hidden">
+        <!-- Panel lateral amplio -->
+        <aside class="w-full sm:w-[640px] bg-slate-900/95 backdrop-blur-md border-r border-slate-800 flex flex-col z-10 shadow-2xl transition-all duration-300">
+            <div class="p-6 border-b border-slate-800 space-y-4">
+                
+                <!-- Origen con Botón de GPS -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
+                            🎯 TU UBICACIÓN (ORIGEN)
+                        </label>
+                        <button id="btnGpsLocation" class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-lg hover:bg-amber-500 hover:text-slate-950 transition font-bold shadow-sm flex items-center gap-1">
+                            📡 Usar mi GPS
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="originInput" value="Bogotá, Cundinamarca" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 pr-8 focus:outline-none focus:border-amber-500 transition">
+                        <span class="absolute right-3 top-3 text-amber-400 text-xs">🔍</span>
+                    </div>
+                    <p id="gpsStatusText" class="text-[11px] text-amber-400 mt-1 font-semibold">Origen actual: Bogotá - Centro</p>
+                </div>
+                
+                <!-- Buscador de Destinos -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5 block">🔻 FILTRAR DESTINOS</label>
+                    <input type="text" id="searchInput" placeholder="Buscar destino (Ej: Cocuy, Ruiz, Tota...)" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 focus:outline-none focus:border-amber-500 transition">
+                </div>
+
+                <!-- Categorías / Filtros Rápidos -->
+                <div class="flex gap-2 overflow-x-auto pb-1 text-xs font-semibold scrollbar-none">
+                    <button class="category-btn active bg-amber-500 text-slate-950 px-3.5 py-1.5 rounded-lg shadow-md transition font-bold whitespace-nowrap" data-category="todos">Todos</button>
+                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="favoritos">❤️ Favoritos</button>
+                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="aventura">Aventura</button>
+                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="cultural">Cultural</button>
+                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="naturaleza">Naturaleza</button>
+                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="historico">Histórico</button>
+                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="mirador">Mirador</button>
+                </div>
+
+                <!-- Modos de Transporte -->
+                <div class="pt-2 border-t border-slate-800 space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide block">MEDIO DE TRANSPORTE</label>
+                    <div class="grid grid-cols-3 gap-3 text-xs">
+                        <button class="transport-btn active bg-amber-500 text-slate-950 font-bold p-3 rounded-xl text-center shadow-md flex items-center justify-center gap-1.5" data-mode="vehiculo">
+                            🚗 Vehículo
+                        </button>
+                        <button class="transport-btn bg-slate-950 border border-slate-800 text-slate-400 p-3 rounded-xl text-center hover:text-white transition flex items-center justify-center gap-1.5" data-mode="autobus">
+                            🚌 Autobús
+                        </button>
+                        <button class="transport-btn bg-slate-950 border border-slate-800 text-slate-400 p-3 rounded-xl text-center hover:text-white transition flex items-center justify-center gap-1.5" data-mode="caminata">
+                            🚶 Caminata
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Contenedor Dinámico: Lista de Destinos / Detalles de Ruta -->
+            <div id="placesList" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+        </aside>
+
+        <!-- Contenedor del Mapa -->
+        <main id="map" class="flex-1 w-full h-full bg-slate-950 z-0"></main>
+    </div>
+
+    <!-- Registro PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('Service Worker PWA registrado con éxito.', reg);
+                }).catch(err => {
+                    console.error('Error registrando Service Worker PWA:', err);
+                });
+            });
+        }
+    </script>
+    <script src="places.js"></script>
+</body>
+</html>

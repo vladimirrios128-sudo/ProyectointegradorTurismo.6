@@ -1,195 +1,79 @@
-const API_HOST =
-    window.location.hostname || "localhost";
+document.addEventListener('DOMContentLoaded', () => {
+    const userForm = document.getElementById('userForm');
+    const responseMessage = document.getElementById('responseMessage');
+    const btnSubmit = document.getElementById('btnSubmit');
 
-const API_PROTOCOL =
-    window.location.protocol === "file:"
-        ? "http:"
-        : window.location.protocol;
+    if (!userForm) return;
 
-const API_URL =
-    `${API_PROTOCOL}//${API_HOST}:5000`;
+    userForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Previene que la pantalla se congele o recargue
 
+        const emailInput = document.getElementById('userEmail') || document.getElementById('email');
+        const passwordInput = document.getElementById('userPassword') || document.getElementById('password');
+        const roleSelect = document.getElementById('userRole') || document.getElementById('role');
 
-const token =
-    localStorage.getItem("jwt_token");
+        const email = emailInput ? emailInput.value.trim() : '';
+        const password = passwordInput ? passwordInput.value : '';
+        const role = roleSelect ? roleSelect.value : 'tourist';
+        const token = localStorage.getItem('token');
 
-
-const storedRole =
-    localStorage.getItem("user_role");
-
-
-const userName =
-    localStorage.getItem("user_name");
-
-
-/*
- * Si no existe token,
- * no se puede entrar.
- */
-
-if (!token) {
-
-    window.location.href = "index.html";
-
-}
-
-
-/*
- * IMPORTANTE:
- * El rol almacenado NO es suficiente
- * para seguridad real.
- *
- * Lo verificamos nuevamente
- * contra el backend.
- */
-
-async function verifyAdminAccess() {
-
-    try {
-
-        const response = await fetch(
-            `${API_URL}/api/v1/auth/me`,
-            {
-                headers: {
-                    "Authorization":
-                        `Bearer ${token}`
-                }
-            }
-        );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Sesión no válida"
-            );
-
-        }
-
-
-        const user =
-            await response.json();
-
-
-        /*
-         * AUTORIZACIÓN REAL
-         */
-
-        if (
-            user.rol !== "admin_global" &&
-            user.rol !== "admin_comercio"
-        ) {
-
-            window.location.href =
-                "index.html";
-
+        if (!email || !password) {
+            showMessage('❌ Por favor completa el correo y la contraseña', 'bg-rose-900/50 text-rose-400 border border-rose-700');
             return;
         }
 
-
-        /*
-         * Mostrar información
-         */
-
-        const roleElement =
-            document.getElementById(
-                "admin-role"
-            );
-
-        const userElement =
-            document.getElementById(
-                "admin-user"
-            );
-
-        const messageElement =
-            document.getElementById(
-                "admin-message"
-            );
-
-
-        if (
-            user.rol === "admin_global"
-        ) {
-
-            roleElement.textContent =
-                "Administrador Global";
-
-            messageElement.textContent =
-                "Tienes acceso a las funciones globales de administración.";
-
+        // Estado visual de carga
+        if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "Registrando...";
         }
 
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    role: role
+                })
+            });
 
-        if (
-            user.rol === "admin_comercio"
-        ) {
+            const data = await response.json();
 
-            roleElement.textContent =
-                "Administrador de Comercio";
-
-            messageElement.textContent =
-                "Tienes acceso a las funciones administrativas de comercio.";
-
+            if (response.ok) {
+                showMessage(`✅ Usuario ${role} (${email}) creado exitosamente`, 'bg-emerald-900/50 text-emerald-400 border border-emerald-700');
+                userForm.reset();
+            } else {
+                let detailMsg = 'No se pudo crear el usuario';
+                if (typeof data.detail === 'string') {
+                    detailMsg = data.detail;
+                } else if (Array.isArray(data.detail)) {
+                    detailMsg = data.detail.map(err => `${err.loc.join('.')}: ${err.msg}`).join(' | ');
+                }
+                showMessage(`❌ ${detailMsg}`, 'bg-rose-900/50 text-rose-400 border border-rose-700');
+            }
+        } catch (error) {
+            console.error('Error al intentar registrar:', error);
+            showMessage('❌ Error de conexión con el servidor FastAPI (127.0.0.1:8000)', 'bg-rose-900/50 text-rose-400 border border-rose-700');
+        } finally {
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "Crear Usuario";
+            }
         }
+    });
 
-
-        userElement.textContent =
-            user.full_name ||
-            userName ||
-            user.email;
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        localStorage.removeItem(
-            "jwt_token"
-        );
-
-        localStorage.removeItem(
-            "user_role"
-        );
-
-        localStorage.removeItem(
-            "user_name"
-        );
-
-        window.location.href =
-            "index.html";
-
+    function showMessage(msg, classes) {
+        if (!responseMessage) {
+            alert(msg);
+            return;
+        }
+        responseMessage.className = `text-sm p-3 rounded-lg text-center font-medium ${classes}`;
+        responseMessage.innerText = msg;
+        responseMessage.classList.remove('hidden');
     }
-
-}
-
-
-/*
- * Cerrar sesión
- */
-
-document
-    .getElementById("btn-logout")
-    .addEventListener(
-        "click",
-        () => {
-
-            localStorage.removeItem(
-                "jwt_token"
-            );
-
-            localStorage.removeItem(
-                "user_role"
-            );
-
-            localStorage.removeItem(
-                "user_name"
-            );
-
-            window.location.href =
-                "index.html";
-
-        }
-    );
-
-
-verifyAdminAccess();
+});
