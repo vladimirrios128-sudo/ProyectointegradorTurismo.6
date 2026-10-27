@@ -1,144 +1,156 @@
+/**
+ * Turismo Inteligente - Colombia
+ * Lógica del Mapa Interactivo Leaflet y Cálculo de Rutas
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
-    const tabLogin = document.getElementById('tabLogin');
-    const tabRegister = document.getElementById('tabRegister');
-    const formTitle = document.getElementById('formTitle');
-    const formSubtitle = document.getElementById('formSubtitle');
-    const headerIcon = document.getElementById('headerIcon');
-    const fullNameGroup = document.getElementById('fullNameGroup');
-    const nameInput = document.getElementById('nameInput');
-    const btnSubmit = document.getElementById('btnSubmit');
+  // Puntos de referencia emblemáticos de Colombia
+  const PLACES_DATA = {
+    bogota: { name: 'Bogotá D.C. (Plaza de Bolívar)', lat: 4.5981, lng: -74.0758 },
+    cocuy: { name: 'Parque Nacional Natural El Cocuy', lat: 6.4678, lng: -72.3167 },
+    nevados: { name: 'Parque Nacional Los Nevados', lat: 4.8922, lng: -75.3194 },
+    cartagena: { name: 'Cartagena de Indias (Murallas)', lat: 10.4236, lng: -75.5528 },
+    guatape: { name: 'Guatapé (Piedra del Peñol)', lat: 6.2328, lng: -75.1565 },
+  };
 
-    const authForm = document.getElementById('authForm');
-    const emailInput = document.getElementById('emailInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const roleSelect = document.getElementById('roleSelect');
-    const statusMessage = document.getElementById('statusMessage');
+  let selectedMode = 'vehicle';
+  let mapInstance = null;
+  let routePolyline = null;
+  let markersLayer = null;
 
-    const modal2FA = document.getElementById('modal2FA');
-    const otpInput = document.getElementById('otpInput');
-    const otpError = document.getElementById('otpError');
-    const btnVerify2FA = document.getElementById('btnVerify2FA');
-    const btnCancel2FA = document.getElementById('btnCancel2FA');
+  // 1. Inicializar Mapa Leaflet centrado en Colombia
+  function initMap() {
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
 
-    let isRegisterMode = false;
-    let currentEmail = '';
-    let currentRole = '';
+    mapInstance = L.map('map', {
+      center: [5.5, -74.0],
+      zoom: 6,
+      zoomControl: true,
+    });
 
-    // Alternar modo Login / Registro
-    function setAuthMode(register) {
-        isRegisterMode = register;
-        statusMessage.classList.add('hidden');
+    // Capa de CartoDB Dark Matter para coincidir con la estética premium oscura
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(mapInstance);
 
-        if (register) {
-            tabRegister.className = "w-1/2 py-2 border-b-2 border-amber-500 text-amber-500 transition-all font-bold";
-            tabLogin.className = "w-1/2 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-300 transition-all font-bold";
-            formTitle.innerText = "Crear Cuenta";
-            formSubtitle.innerText = "Únete a la plataforma de Turismo Inteligente";
-            headerIcon.innerText = "📝";
-            fullNameGroup.classList.remove('hidden');
-            nameInput.setAttribute('required', 'true');
-            btnSubmit.innerText = "Registrarse y Continuar →";
-        } else {
-            tabLogin.className = "w-1/2 py-2 border-b-2 border-amber-500 text-amber-500 transition-all font-bold";
-            tabRegister.className = "w-1/2 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-300 transition-all font-bold";
-            formTitle.innerText = "Iniciar Sesión";
-            formSubtitle.innerText = "Plataforma Inteligente de Rutas Turísticas";
-            headerIcon.innerText = "🔐";
-            fullNameGroup.classList.add('hidden');
-            nameInput.removeAttribute('required');
-            btnSubmit.innerText = "Iniciar Sesión →";
-        }
+    markersLayer = L.layerGroup().addTo(mapInstance);
+
+    // Añadir marcadores para los puntos clave
+    Object.keys(PLACES_DATA).forEach((key) => {
+      const p = PLACES_DATA[key];
+      const customIcon = L.divIcon({
+        className: 'custom-map-pin',
+        html: `<div style="background: #E67E22; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 10px rgba(230,126,34,0.8);"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+      });
+
+      L.marker([p.lat, p.lng], { icon: customIcon })
+        .bindPopup(`<strong style="color: #0c1017;">${p.name}</strong><br><span style="font-size: 11px; color: #64748b;">Punto Turístico Colombia</span>`)
+        .addTo(markersLayer);
+    });
+
+    // Calcular ruta inicial por defecto
+    calculateRoute();
+  }
+
+  // 2. Cálculo de Ruta y Distancia
+  function calculateRoute() {
+    const originKey = document.getElementById('route-origin')?.value || 'bogota';
+    const destKey = document.getElementById('route-destination')?.value || 'guatape';
+
+    if (originKey === destKey) {
+      if (window.TurismoApp) {
+        window.TurismoApp.showRbacAlert('Atención', 'El origen y el destino deben ser diferentes.', true);
+      }
+      return;
     }
 
-    if (tabLogin) tabLogin.addEventListener('click', () => setAuthMode(false));
-    if (tabRegister) tabRegister.addEventListener('click', () => setAuthMode(true));
+    const p1 = PLACES_DATA[originKey];
+    const p2 = PLACES_DATA[destKey];
 
-    function showStatus(text, isError = true) {
-        statusMessage.className = "text-center text-xs p-2.5 rounded-xl font-medium border block";
-        if (isError) {
-            statusMessage.classList.add('bg-rose-950/80', 'text-rose-400', 'border-rose-800');
-        } else {
-            statusMessage.classList.add('bg-emerald-950/80', 'text-emerald-400', 'border-emerald-800');
-        }
-        statusMessage.innerText = text;
+    if (!p1 || !p2) return;
+
+    // Distancia geodésica aproximada
+    const R = 6371; // Radio de la Tierra en km
+    const dLat = ((p2.lat - p1.lat) * Math.PI) / 180;
+    const dLon = ((p2.lng - p1.lng) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((p1.lat * Math.PI) / 180) *
+        Math.cos((p2.lat * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const directDist = R * c;
+
+    // Factor de sinuosidad vial de montaña en Colombia
+    const roadDist = Math.round(directDist * 1.35 * 10) / 10;
+
+    const speedMap = {
+      vehicle: 55, // km/h
+      bus: 42,
+      walking: 4.5,
+    };
+    const speed = speedMap[selectedMode] || 50;
+    const hours = Math.round((roadDist / speed) * 10) / 10;
+
+    // Actualizar resumen en la UI
+    const distEl = document.getElementById('summary-distance');
+    const durEl = document.getElementById('summary-duration');
+    const modeEl = document.getElementById('summary-mode');
+
+    if (distEl) distEl.textContent = `${roadDist.toLocaleString()} km`;
+    if (durEl) durEl.textContent = `${hours} horas`;
+    if (modeEl) {
+      modeEl.textContent =
+        selectedMode === 'vehicle' ? 'Vehículo' : selectedMode === 'bus' ? 'Autobús' : 'Caminata';
     }
 
-    if (authForm) {
-        authForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            currentEmail = emailInput.value.trim();
-            currentRole = roleSelect.value;
-            const password = passwordInput.value.trim();
-            const fullName = nameInput.value.trim();
-
-            if (!currentEmail || !password || (isRegisterMode && !fullName)) {
-                showStatus("⚠️ Completa todos los campos requeridos.");
-                return;
-            }
-
-            statusMessage.classList.add('hidden');
-
-            const endpoint = isRegisterMode ? '/api/v1/auth/register' : '/api/v1/auth/login';
-
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        email: currentEmail, 
-                        password: password,
-                        role: currentRole,
-                        full_name: isRegisterMode ? fullName : undefined
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.status === '2fa_required' || isRegisterMode) {
-                        modal2FA.classList.remove('hidden');
-                        otpInput.value = '';
-                        otpError.classList.add('hidden');
-                        otpInput.focus();
-                        return;
-                    }
-                }
-            } catch (err) {
-                console.log("Transicionando a autenticación visual de desarrollo.");
-            }
-
-            // Despliegue del modal 2FA en el navegador
-            modal2FA.classList.remove('hidden');
-            otpInput.value = '';
-            otpError.classList.add('hidden');
-            otpInput.focus();
-        });
+    // Trazar línea en el mapa
+    if (routePolyline) {
+      mapInstance.removeLayer(routePolyline);
     }
 
-    // Validación del código OTP de 6 dígitos
-    if (btnVerify2FA) {
-        btnVerify2FA.addEventListener('click', () => {
-            const otpCode = otpInput.value.trim();
+    const curvePoints = generateMidCurvedPath([p1.lat, p1.lng], [p2.lat, p2.lng]);
 
-            if (otpCode.length !== 6) {
-                otpError.innerText = "⚠️ Ingresa los 6 dígitos del código enviado.";
-                otpError.classList.remove('hidden');
-                return;
-            }
+    routePolyline = L.polyline(curvePoints, {
+      color: '#E67E22',
+      weight: 4,
+      opacity: 0.85,
+      dashArray: selectedMode === 'walking' ? '6, 8' : null,
+    }).addTo(mapInstance);
 
-            // Almacenar credenciales de sesión
-            localStorage.setItem('userEmail', currentEmail);
-            localStorage.setItem('userRole', currentRole);
-            localStorage.setItem('userToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
+    mapInstance.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+  }
 
-            // Redirección hacia la vista principal
-            window.location.href = 'places.html';
-        });
-    }
+  // Genera puntos de apoyo para dar realismo a la topografía
+  function generateMidCurvedPath(start, end) {
+    const midLat = (start[0] + end[0]) / 2 + (Math.random() - 0.5) * 0.15;
+    const midLng = (start[1] + end[1]) / 2 + (Math.random() - 0.5) * 0.15;
+    return [start, [midLat, midLng], end];
+  }
 
-    if (btnCancel2FA) {
-        btnCancel2FA.addEventListener('click', () => {
-            modal2FA.classList.add('hidden');
-        });
-    }
+  // 3. Manejo de Botones de Modo de Transporte
+  const modeButtons = document.querySelectorAll('.transport-btn');
+  modeButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      modeButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedMode = btn.getAttribute('data-mode') || 'vehicle';
+      calculateRoute();
+    });
+  });
+
+  // Botón calcular
+  const calcBtn = document.getElementById('btn-calculate-route');
+  if (calcBtn) {
+    calcBtn.addEventListener('click', calculateRoute);
+  }
+
+  // Inicializar mapa
+  initMap();
 });

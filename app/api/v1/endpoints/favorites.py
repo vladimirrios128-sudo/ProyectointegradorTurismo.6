@@ -1,50 +1,80 @@
-from fastapi import APIRouter, Depends
+"""
+Endpoints de Favoritos para Turistas y Usuarios Autenticados
+Turismo Inteligente - Colombia
+"""
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
 
 from app.core.deps import get_current_user
-from app.db.models import FavoriteModel, UserModel
+from app.db.models import Favorite, Place, User
 from app.db.session import get_db
+from app.schemas.places import PlaceResponse
 
 router = APIRouter()
 
 
-class FavoriteCreate(BaseModel):
-    place_name: str = Field(min_length=1, max_length=180)
-
-
-@router.post("/")
-def toggle_favorite(
-    favorite: FavoriteCreate,
-    current_user: UserModel = Depends(get_current_user),
+@router.get("", response_model=List[PlaceResponse])
+def get_user_favorites(
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    existing = (
-        db.query(FavoriteModel)
-        .filter(
-            FavoriteModel.user_id == current_user.id,
-            FavoriteModel.place_name == favorite.place_name,
+    """Retorna los lugares turísticos marcados como favoritos por el usuario actual."""
+    favorites = (
+        db.query(Place)
+        .join(Favorite, Favorite.place_id == Place.id)
+        .filter(Favorite.user_id == current_user.id)
+        .all()
+    )
+    return favorites
+
+
+@router.post("/{place_id}", status_code=status.HTTP_201_CREATED)
+def add_favorite(
+    place_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Añade un lugar a la lista de favoritos personal del usuario."""
+    place = db.query(Place).filter(Place.id == place_id).first()
+    if not place:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El lugar turístico no existe.",
         )
+
+    existing = (
+        db.query(Favorite)
+        .filter(Favorite.user_id == current_user.id, Favorite.place_id == place_id)
         .first()
     )
     if existing:
-        db.delete(existing)
-        db.commit()
-        return {"status": "removed", "message": "Eliminado de favoritos."}
+        return {"message": "El lugar ya se encontraba en tus favoritos.", "place_id": place_id}
 
-    db.add(FavoriteModel(user_id=current_user.id, place_name=favorite.place_name))
+    fav = Favorite(user_id=current_user.id, place_id=place_id)
+    db.add(fav)
     db.commit()
-    return {"status": "added", "message": "Añadido a favoritos."}
+    return {"message": "Lugar añadido con éxito a favoritos.", "place_id": place_id}
 
 
-@router.get("/")
-def get_favorites(
-    current_user: UserModel = Depends(get_current_user),
+@router.delete("/{place_id}", status_code=status.HTTP_200_OK)
+def remove_favorite(
+    place_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    favorites = (
-        db.query(FavoriteModel)
-        .filter(FavoriteModel.user_id == current_user.id)
-        .all()
+    """Remueve un lugar de la lista de favoritos personal."""
+    fav = (
+        db.query(Favorite)
+        .filter(Favorite.user_id == current_user.id, Favorite.place_id == place_id)
+        .first()
     )
-    return [item.place_name for item in favorites]
+    if not fav:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El lugar no está en tu lista de favoritos.",
+        )
+
+    db.delete(fav)
+    db.commit()
+    return {"message": "Lugar removido de favoritos.", "place_id": place_id}
