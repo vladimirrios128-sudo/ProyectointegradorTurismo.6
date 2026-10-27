@@ -1,139 +1,157 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turismo Inteligente - Colombia</title>
-    
-    <!-- Configuración PWA -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Leaflet CSS y JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Leaflet Routing Machine -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-    
-    <!-- Chart.js para el Perfil de Altitud -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Atractivos - Turismo Inteligente Colombia</title>
+  <meta name="description" content="Explora los destinos naturales, culturales e históricos más impactantes de Colombia.">
 
-    <link rel="stylesheet" href="styles.css">
+  <!-- Tipografía Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <style>
-        .leaflet-routing-container { display: none !important; }
-        
-        /* Personalización del selector de capas de Leaflet en modo oscuro */
-        .leaflet-control-layers {
-            background-color: rgba(15, 23, 42, 0.95) !important;
-            border: 1px solid rgba(51, 65, 85, 0.8) !important;
-            border-radius: 0.75rem !important;
-            color: #ffffff !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
-            padding: 8px 12px !important;
-        }
-        .leaflet-control-layers-base label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-    </style>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Estilos Personalizados de Vanguardia -->
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-slate-950 text-white min-h-screen flex flex-col font-sans">
+<body>
 
-    <!-- Header / Barra Superior -->
-    <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex justify-between items-center z-20 shadow-lg">
-        <div class="flex items-center space-x-3">
-            <span class="text-xl">📍</span>
-            <h1 class="text-base font-bold tracking-wide text-amber-500">Turismo Inteligente - Colombia</h1>
+  <!-- Top Bar Contract -->
+  <header class="glass-header">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <div class="brand-icon">
+          <i data-lucide="compass" style="width: 20px; height: 20px;"></i>
         </div>
+        <span>Turismo Colombia</span>
+      </a>
 
-        <div id="headerActions" class="flex items-center space-x-3 text-xs"></div>
-    </header>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="places.html" class="active">Lugares & Rutas</a></li>
+          <li><a href="merchant.html">Portal Comerciante</a></li>
+          <li><a href="admin.html">Administración</a></li>
+        </ul>
+      </nav>
 
-    <!-- Contenido Principal -->
-    <div class="flex flex-1 relative overflow-hidden">
-        <!-- Panel lateral amplio -->
-        <aside class="w-full sm:w-[640px] bg-slate-900/95 backdrop-blur-md border-r border-slate-800 flex flex-col z-10 shadow-2xl transition-all duration-300">
-            <div class="p-6 border-b border-slate-800 space-y-4">
-                
-                <!-- Origen con Botón de GPS -->
-                <div>
-                    <div class="flex justify-between items-center mb-1.5">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
-                            🎯 TU UBICACIÓN (ORIGEN)
-                        </label>
-                        <button id="btnGpsLocation" class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-lg hover:bg-amber-500 hover:text-slate-950 transition font-bold shadow-sm flex items-center gap-1">
-                            📡 Usar mi GPS
-                        </button>
-                    </div>
-                    <div class="relative">
-                        <input type="text" id="originInput" value="Bogotá, Cundinamarca" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 pr-8 focus:outline-none focus:border-amber-500 transition">
-                        <span class="absolute right-3 top-3 text-amber-400 text-xs">🔍</span>
-                    </div>
-                    <p id="gpsStatusText" class="text-[11px] text-amber-400 mt-1 font-semibold">Origen actual: Bogotá - Centro</p>
-                </div>
-                
-                <!-- Buscador de Destinos -->
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5 block">🔻 FILTRAR DESTINOS</label>
-                    <input type="text" id="searchInput" placeholder="Buscar destino (Ej: Cocuy, Ruiz, Tota...)" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 focus:outline-none focus:border-amber-500 transition">
-                </div>
+      <div class="user-zone">
+        <span id="user-current-role" class="role-badge tourist">Turista</span>
+        <button id="btn-toggle-favorites" class="btn btn-outline" style="padding: 0.5rem 1rem;">
+          <i data-lucide="heart" style="width: 16px; height: 16px; color: #ef4444;"></i>
+          <span>Mis Favoritos (<span id="fav-count">0</span>)</span>
+        </button>
+      </div>
+    </div>
+  </header>
 
-                <!-- Categorías / Filtros Rápidos -->
-                <div class="flex gap-2 overflow-x-auto pb-1 text-xs font-semibold scrollbar-none">
-                    <button class="category-btn active bg-amber-500 text-slate-950 px-3.5 py-1.5 rounded-lg shadow-md transition font-bold whitespace-nowrap" data-category="todos">Todos</button>
-                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="favoritos">❤️ Favoritos</button>
-                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="aventura">Aventura</button>
-                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="cultural">Cultural</button>
-                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="naturaleza">Naturaleza</button>
-                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="historico">Histórico</button>
-                    <button class="category-btn bg-slate-950 border border-slate-800 text-slate-400 px-3.5 py-1.5 rounded-lg hover:text-white transition whitespace-nowrap" data-category="mirador">Mirador</button>
-                </div>
+  <!-- Main Content -->
+  <main style="max-width: 1320px; margin: 0 auto; padding: 3rem 1.5rem;">
+    <!-- Encabezado de Sección -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1.5rem;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-terracotta); font-weight: 700; font-size: 0.8125rem; text-transform: uppercase;">
+          <i data-lucide="mountain-snow" style="width: 16px; height: 16px;"></i>
+          <span>Destinos Verificados</span>
+        </div>
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin-top: 0.25rem;">Atractivos Turísticos de Colombia</h1>
+      </div>
 
-                <!-- Modos de Transporte -->
-                <div class="pt-2 border-t border-slate-800 space-y-2">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wide block">MEDIO DE TRANSPORTE</label>
-                    <div class="grid grid-cols-3 gap-3 text-xs">
-                        <button class="transport-btn active bg-amber-500 text-slate-950 font-bold p-3 rounded-xl text-center shadow-md flex items-center justify-center gap-1.5" data-mode="vehiculo">
-                            🚗 Vehículo
-                        </button>
-                        <button class="transport-btn bg-slate-950 border border-slate-800 text-slate-400 p-3 rounded-xl text-center hover:text-white transition flex items-center justify-center gap-1.5" data-mode="autobus">
-                            🚌 Autobús
-                        </button>
-                        <button class="transport-btn bg-slate-950 border border-slate-800 text-slate-400 p-3 rounded-xl text-center hover:text-white transition flex items-center justify-center gap-1.5" data-mode="caminata">
-                            🚶 Caminata
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Contenedor Dinámico: Lista de Destinos / Detalles de Ruta -->
-            <div id="placesList" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-        </aside>
-
-        <!-- Contenedor del Mapa -->
-        <main id="map" class="flex-1 w-full h-full bg-slate-950 z-0"></main>
+      <!-- Barra de Búsqueda Minimalista -->
+      <div style="position: relative; width: 100%; max-width: 380px;">
+        <i data-lucide="search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-muted);"></i>
+        <input type="text" id="places-search" placeholder="Buscar por nombre, parque o ciudad..." style="width: 100%; background: var(--bg-surface); border: 1px solid var(--glass-border); padding: 0.75rem 1rem 0.75rem 2.75rem; border-radius: 14px; color: var(--text-primary); outline: none; font-size: 0.9375rem;">
+      </div>
     </div>
 
-    <!-- Registro PWA Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => {
-                    console.log('Service Worker PWA registrado con éxito.', reg);
-                }).catch(err => {
-                    console.error('Error registrando Service Worker PWA:', err);
-                });
-            });
-        }
-    </script>
-    <script src="places.js"></script>
+    <!-- Pestañas de Filtro por Categoría con Iconos Lineales Modernos -->
+    <div style="display: flex; gap: 0.75rem; margin-bottom: 2.5rem; flex-wrap: wrap;" id="category-filter-group">
+      <button class="btn btn-primary filter-tab active" data-category="Todos">
+        <i data-lucide="layers" style="width: 16px; height: 16px;"></i>
+        <span>Todos</span>
+      </button>
+      <button class="btn btn-outline filter-tab" data-category="Aventura">
+        <i data-lucide="compass" style="width: 16px; height: 16px; color: var(--accent-emerald-light);"></i>
+        <span>Aventura & Naturaleza</span>
+      </button>
+      <button class="btn btn-outline filter-tab" data-category="Cultural">
+        <i data-lucide="palette" style="width: 16px; height: 16px; color: var(--accent-terracotta);"></i>
+        <span>Cultural</span>
+      </button>
+      <button class="btn btn-outline filter-tab" data-category="Histórico">
+        <i data-lucide="landmark" style="width: 16px; height: 16px; color: var(--accent-gold);"></i>
+        <span>Histórico</span>
+      </button>
+    </div>
+
+    <!-- Contenedor de Skeletons (Loaders de Alto Esfuerzo) -->
+    <div id="places-skeleton-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;">
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-media"></div>
+        <div class="skeleton-text-group">
+          <div class="skeleton" style="height: 14px; width: 40%;"></div>
+          <div class="skeleton" style="height: 22px; width: 85%;"></div>
+          <div class="skeleton" style="height: 14px; width: 100%;"></div>
+          <div class="skeleton" style="height: 14px; width: 70%;"></div>
+        </div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-media"></div>
+        <div class="skeleton-text-group">
+          <div class="skeleton" style="height: 14px; width: 35%;"></div>
+          <div class="skeleton" style="height: 22px; width: 80%;"></div>
+          <div class="skeleton" style="height: 14px; width: 100%;"></div>
+          <div class="skeleton" style="height: 14px; width: 65%;"></div>
+        </div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-media"></div>
+        <div class="skeleton-text-group">
+          <div class="skeleton" style="height: 14px; width: 45%;"></div>
+          <div class="skeleton" style="height: 22px; width: 90%;"></div>
+          <div class="skeleton" style="height: 14px; width: 100%;"></div>
+          <div class="skeleton" style="height: 14px; width: 75%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Real de Tarjetas de Lugares -->
+    <div id="places-grid" style="display: none; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;">
+      <!-- Se inyecta dinámicamente desde places.js -->
+    </div>
+
+    <!-- Estado Vacío -->
+    <div id="places-empty-state" style="display: none; text-align: center; padding: 4rem 1rem;" class="glass-panel">
+      <i data-lucide="map-pin-off" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 1rem;"></i>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">No se encontraron atractivos</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9375rem;">Intenta con otros términos de búsqueda o selecciona otra categoría.</p>
+    </div>
+  </main>
+
+  <!-- Modal Detalle del Atractivo (Glassmorphism) -->
+  <div id="place-detail-modal" style="display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(12,16,23,0.85); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 1.5rem;">
+    <div class="glass-panel" style="max-width: 640px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem; position: relative; border-radius: 24px;">
+      <button id="close-modal-btn" style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); border-radius: 50%; width: 36px; height: 36px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+      </button>
+
+      <div id="modal-content">
+        <!-- Inyectado dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor de Alertas RBAC -->
+  <div id="rbac-alert-container"></div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  <script src="places.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
 </body>
 </html>

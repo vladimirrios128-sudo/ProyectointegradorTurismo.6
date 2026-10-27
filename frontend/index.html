@@ -1,93 +1,226 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso - Turismo Inteligente</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turismo Inteligente - Colombia</title>
+  <meta name="description" content="Plataforma de turismo inteligente en Colombia con control de acceso basado en roles (RBAC) y diseño cultural de vanguardia.">
+
+  <!-- Tipografía Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Estilos Personalizados de Vanguardia -->
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center font-sans">
+<body>
 
-    <!-- Tarjeta Principal de Login / Registro -->
-    <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl space-y-6">
-        
-        <div class="text-center space-y-2">
-            <div class="inline-flex p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl mb-1">
-                <span class="text-2xl" id="headerIcon">🔐</span>
-            </div>
-            <h2 class="text-xl font-bold text-white" id="formTitle">Iniciar Sesión</h2>
-            <p class="text-xs text-slate-400" id="formSubtitle">Plataforma Inteligente de Rutas Turísticas</p>
+  <!-- Top Bar Contract -->
+  <header class="glass-header">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <div class="brand-icon">
+          <i data-lucide="compass" style="width: 20px; height: 20px;"></i>
         </div>
+        <span>Turismo Colombia</span>
+      </a>
 
-        <!-- Pestañas (Iniciar Sesión / Registrarse) -->
-        <div class="flex border-b border-slate-800 text-xs font-bold text-center">
-            <button type="button" id="tabLogin" class="w-1/2 py-2 border-b-2 border-amber-500 text-amber-500 transition-all">
-                Iniciar Sesión
-            </button>
-            <button type="button" id="tabRegister" class="w-1/2 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-300 transition-all">
-                Registrarse
-            </button>
-        </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html" class="active">Inicio</a></li>
+          <li><a href="places.html">Lugares & Rutas</a></li>
+          <li><a href="merchant.html">Portal Comerciante</a></li>
+          <li><a href="admin.html">Administración</a></li>
+        </ul>
+      </nav>
 
-        <!-- Formulario -->
-        <form id="authForm" class="space-y-4">
-            <!-- Campo Nombre Completo (solo visible en Registro) -->
-            <div id="fullNameGroup" class="hidden">
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Nombre Completo</label>
-                <input type="text" id="nameInput" placeholder="Ej: Vladimir Ríos" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 focus:outline-none focus:border-amber-500 transition">
-            </div>
-
-            <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Correo Electrónico</label>
-                <input type="email" id="emailInput" required value="JuanAdmin@gmail.com" placeholder="tu_correo@ejemplo.com" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 focus:outline-none focus:border-amber-500 transition">
-            </div>
-
-            <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Contraseña</label>
-                <input type="password" id="passwordInput" required value="12345678" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 focus:outline-none focus:border-amber-500 transition">
-                <p class="text-[9px] text-slate-500 mt-1">Requisito: Mínimo 8 caracteres y 2 especiales (ej: @, #, $, !)</p>
-            </div>
-
-            <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Rol / Permiso de Usuario</label>
-                <select id="roleSelect" class="w-full bg-slate-950 border border-slate-800 text-xs text-white rounded-xl p-3 focus:outline-none focus:border-amber-500 transition">
-                    <option value="super_admin">Super Admin</option>
-                    <option value="merchant">Admin Comercio</option>
-                    <option value="tourist" selected>Turista</option>
-                    <option value="auditor">Auditor</option>
-                </select>
-            </div>
-
-            <div id="statusMessage" class="hidden text-center text-xs p-2.5 rounded-xl font-medium"></div>
-
-            <button type="submit" id="btnSubmit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-1.5 active:scale-98">
-                Iniciar Sesión →
-            </button>
-        </form>
+      <div class="user-zone">
+        <span id="user-current-name" class="auth-user-name" hidden></span>
+        <span id="user-current-role" class="role-badge tourist" hidden></span>
+        <button type="button" id="btn-open-auth" class="btn btn-primary">
+          <i data-lucide="user-round" style="width: 16px; height: 16px;"></i>
+          <span>Iniciar Sesión / Registrarse</span>
+        </button>
+        <button type="button" id="btn-logout" class="btn btn-outline" hidden>
+          <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
+          <span>Cerrar Sesión</span>
+        </button>
+        <a href="places.html" class="btn btn-primary">
+          <i data-lucide="map-pin" style="width: 16px; height: 16px;"></i>
+          <span>Explorar</span>
+        </a>
+      </div>
     </div>
+  </header>
 
-    <!-- Modal Emergente 2FA -->
-    <div id="modal2FA" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center hidden z-50">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-center">
-            <div class="text-3xl">📩</div>
-            <h3 class="text-base font-bold text-amber-500">Verificación en Dos Pasos (2FA)</h3>
-            <p class="text-xs text-slate-400">Hemos enviado un código de 6 dígitos a tu correo electrónico. Ingrésalo a continuación para continuar.</p>
-
-            <input type="text" id="otpInput" maxlength="6" placeholder="000000" class="w-full text-center text-lg font-mono tracking-widest bg-slate-950 border border-slate-700 text-amber-400 rounded-xl p-3 focus:outline-none focus:border-amber-500">
-
-            <p id="otpError" class="text-[11px] text-rose-500 hidden font-semibold"></p>
-
-            <div class="flex gap-2">
-                <button type="button" id="btnCancel2FA" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 rounded-xl text-xs transition">
-                    Cancelar
-                </button>
-                <button type="button" id="btnVerify2FA" class="w-1/2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-xl text-xs transition shadow-md">
-                    Verificar
-                </button>
-            </div>
+  <!-- Hero Section -->
+  <main style="max-width: 1320px; margin: 0 auto; padding: 3rem 1.5rem;">
+    <section style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; margin-bottom: 4rem;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-terracotta); font-weight: 600; font-size: 0.875rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+          <span>Rutas Ecológicas y Culturales de Colombia</span>
         </div>
-    </div>
+        <h1 style="font-size: clamp(2.5rem, 5vw, 3.85rem); line-height: 1.1; margin-bottom: 1.5rem; font-weight: 800;">
+          Descubre el país de la <span style="background: linear-gradient(135deg, var(--accent-gold), var(--accent-terracotta)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">biodiversidad</span>
+        </h1>
+        <p style="font-size: 1.125rem; color: var(--text-secondary); margin-bottom: 2rem; max-width: 520px;">
+          Planifica itinerarios inteligentes entre los nevados andinos, las selvas amazónicas y las costas caribeñas con seguridad de roles y prestadores certificados.
+        </p>
 
-    <script src="index.js"></script>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="#planner-section" class="btn btn-primary">
+            <i data-lucide="navigation-2" style="width: 18px; height: 18px;"></i>
+            <span>Trazar Ruta Inteligente</span>
+          </a>
+          <a href="places.html" class="btn btn-outline">
+            <i data-lucide="layers" style="width: 18px; height: 18px;"></i>
+            <span>Catálogo Completo</span>
+          </a>
+        </div>
+
+        <div style="display: flex; gap: 2rem; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--glass-border);">
+          <div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-emerald-light); font-variant-numeric: tabular-nums;">+32</div>
+            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Departamentos Conectados</div>
+          </div>
+          <div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-gold); font-variant-numeric: tabular-nums;">100%</div>
+            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Seguridad de Roles (RBAC)</div>
+          </div>
+          <div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-terracotta); font-variant-numeric: tabular-nums;">59</div>
+            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Áreas Protegidas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta Destacada Parque El Cocuy (Bordes curvos modernos 20px) -->
+      <div class="glass-panel" style="padding: 1rem; overflow: hidden;">
+        <div style="position: relative; border-radius: 16px; overflow: hidden; height: 380px;">
+          <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1000&q=80" alt="Parque Nacional El Cocuy" style="width: 100%; height: 100%; object-fit: cover;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(12,16,23,0.95) 0%, rgba(12,16,23,0.3) 50%, transparent 100%);"></div>
+
+          <div style="position: absolute; top: 1rem; left: 1rem;" class="place-badge-category category-aventura">
+            <i data-lucide="mountain" style="width: 14px; height: 14px;"></i>
+            <span>Aventura Andina</span>
+          </div>
+
+          <!-- Indicador Meteorológico Glassmorphic -->
+          <div style="position: absolute; top: 1rem; right: 1rem; background: rgba(12, 16, 23, 0.75); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 0.4rem 0.75rem; display: flex; align-items: center; gap: 0.6rem; box-shadow: 0 8px 20px rgba(0,0,0,0.4); color: #F8F6F0;" title="Clima actual en Parque El Cocuy: 4°C, Soleado de alta montaña">
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+              <i data-lucide="cloud-sun" style="width: 16px; height: 16px; color: #D4AF37;"></i>
+              <span style="font-weight: 800; font-size: 0.875rem; font-variant-numeric: tabular-nums;">4°C</span>
+            </div>
+            <div style="width: 1px; height: 14px; background: rgba(255,255,255,0.15);"></div>
+            <div style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: #cbd5e1;">
+              <i data-lucide="snowflake" style="width: 13px; height: 13px; color: #38bdf8;"></i>
+              <span>1° / 8°C</span>
+            </div>
+          </div>
+
+          <div style="position: absolute; bottom: 1.5rem; left: 1.5rem; right: 1.5rem;">
+            <div style="color: var(--accent-terracotta); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem;">Boyacá, Colombia</div>
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #fff;">Parque Nacional Natural El Cocuy</h3>
+            <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.4;">Sierra glaciar con más de 25 cumbres nevadas y lagunas sagradas custodiadas por guías locales certificados.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Planificador de Rutas Interactivo (Leaflet + Modos de Transporte) -->
+    <section id="planner-section" class="glass-panel" style="padding: 2rem; margin-bottom: 4rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span style="color: var(--accent-terracotta); font-weight: 700; font-size: 0.8125rem; text-transform: uppercase;">Módulo de Navegación</span>
+          <h2 style="font-size: 1.75rem; font-weight: 700;">Calculador de Rutas Turísticas</h2>
+        </div>
+
+        <!-- Selector de Transporte con Iconos Modernos -->
+        <div class="transport-selector">
+          <button type="button" class="transport-btn active" data-mode="vehicle" id="mode-vehicle">
+            <i data-lucide="car" style="width: 16px; height: 16px;"></i>
+            <span>Vehículo</span>
+          </button>
+          <button type="button" class="transport-btn" data-mode="bus" id="mode-bus">
+            <i data-lucide="bus" style="width: 16px; height: 16px;"></i>
+            <span>Autobús</span>
+          </button>
+          <button type="button" class="transport-btn" data-mode="walking" id="mode-walking">
+            <i data-lucide="footprints" style="width: 16px; height: 16px;"></i>
+            <span>Caminata</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulario de Origen y Destino -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) auto; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-end;">
+        <div>
+          <label style="display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);">Origen</label>
+          <select id="route-origin" style="width: 100%; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 0.75rem 1rem; border-radius: 12px; outline: none; font-size: 0.9375rem;">
+            <option value="bogota">Bogotá D.C. (Plaza de Bolívar)</option>
+            <option value="cocuy">Parque El Cocuy (Boyacá)</option>
+            <option value="nevados">Parque Los Nevados (Manizales)</option>
+            <option value="cartagena">Cartagena de Indias (Murallas)</option>
+            <option value="guatape">Guatapé (Piedra del Peñol)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);">Destino</label>
+          <select id="route-destination" style="width: 100%; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 0.75rem 1rem; border-radius: 12px; outline: none; font-size: 0.9375rem;">
+            <option value="cocuy">Parque El Cocuy (Boyacá)</option>
+            <option value="bogota">Bogotá D.C. (Plaza de Bolívar)</option>
+            <option value="nevados">Parque Los Nevados (Manizales)</option>
+            <option value="cartagena">Cartagena de Indias (Murallas)</option>
+            <option value="guatape" selected>Guatapé (Piedra del Peñol)</option>
+          </select>
+        </div>
+
+        <button type="button" id="btn-calculate-route" class="btn btn-primary" style="height: 48px;">
+          <i data-lucide="route" style="width: 18px; height: 18px;"></i>
+          <span>Calcular Itinerario</span>
+        </button>
+      </div>
+
+      <!-- Contenedor del Mapa Leaflet -->
+      <div id="map" class="map-surface"></div>
+
+      <!-- Resumen del Itinerario -->
+      <div id="route-summary" style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div style="background: var(--bg-surface); border: 1px solid var(--glass-border); border-radius: 14px; padding: 1.25rem;">
+          <div style="font-size: 0.8125rem; color: var(--text-secondary);">Distancia Total Estimada</div>
+          <div id="summary-distance" style="font-size: 1.5rem; font-weight: 800; color: var(--accent-terracotta);">395.2 km</div>
+        </div>
+        <div style="background: var(--bg-surface); border: 1px solid var(--glass-border); border-radius: 14px; padding: 1.25rem;">
+          <div style="font-size: 0.8125rem; color: var(--text-secondary);">Tiempo Aproximado</div>
+          <div id="summary-duration" style="font-size: 1.5rem; font-weight: 800; color: var(--accent-emerald-light);">6.5 horas</div>
+        </div>
+        <div style="background: var(--bg-surface); border: 1px solid var(--glass-border); border-radius: 14px; padding: 1.25rem;">
+          <div style="font-size: 0.8125rem; color: var(--text-secondary);">Modo Seleccionado</div>
+          <div id="summary-mode" style="font-size: 1.5rem; font-weight: 800; color: var(--accent-gold);">Vehículo</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Contenedor de Alertas RBAC -->
+  <div id="rbac-alert-container"></div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+  <script src="index.js"></script>
+  <script>
+    // Inicializar iconos de Lucide
+    lucide.createIcons();
+  </script>
 </body>
 </html>

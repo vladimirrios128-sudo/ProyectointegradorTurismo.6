@@ -1,0 +1,6 @@
+{
+  "name": "Turismo Inteligente Colombia",
+  "description": "Plataforma de turismo inteligente en Colombia con control de acceso basado en roles (RBAC) y diseño cultural de vanguardia.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
